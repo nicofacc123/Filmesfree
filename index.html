@@ -3,508 +3,162 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#090909" />
-  <meta name="description" content="TELA+ — descubra filmes, séries e obras audiovisuais de acervos abertos." />
-  <title>TELA+ | Cinema para descobrir</title>
-  <link rel="preconnect" href="https://archive.org" />
-  <link rel="preconnect" href="https://archive.org" crossorigin />
+  <meta name="theme-color" content="#08090d" />
+  <meta name="description" content="TELA+ reúne filmes e séries gratuitos de plataformas oficiais e ajuda você a descobrir onde assistir legalmente." />
+  <title>TELA+ | Seu cinema sem mensalidade</title>
+  <link rel="preconnect" href="https://images.unsplash.com" />
   <style>
-    :root {
-      --bg: #090909;
-      --panel: #151515;
-      --panel-2: #202020;
-      --text: #f6f6f6;
-      --muted: #aaa;
-      --red: #e50914;
-      --red-dark: #b20710;
-      --line: rgba(255,255,255,.12);
-      --radius: 12px;
-      --max: 1440px;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
-    }
-    button, input { font: inherit; }
-    button { cursor: pointer; }
-    a { color: inherit; }
-    .topbar {
-      position: fixed; inset: 0 0 auto; z-index: 20;
-      height: 72px; display: flex; align-items: center;
-      padding: 0 clamp(18px, 4vw, 64px); gap: 34px;
-      background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.48));
-      transition: background .25s, box-shadow .25s;
-    }
-    .topbar.scrolled { background: rgba(8,8,8,.96); box-shadow: 0 8px 28px rgba(0,0,0,.24); }
-    .brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; flex: 0 0 auto; }
-    .brand-mark {
-      width: 29px; height: 29px; display: grid; place-items: center;
-      background: var(--red); border-radius: 7px; font-weight: 950; font-size: 17px;
-      transform: skew(-8deg); box-shadow: 0 4px 18px rgba(229,9,20,.3);
-    }
-    .brand-name { font-size: 23px; letter-spacing: 2px; font-weight: 900; }
-    .brand-name span { color: var(--red); }
-    .nav { display: flex; align-items: center; gap: 24px; color: #ddd; font-size: 14px; }
-    .nav button { background: none; border: 0; color: inherit; padding: 8px 0; transition: color .2s; }
-    .nav button:hover, .nav button.active { color: white; font-weight: 750; }
-    .nav button.active::after { content:""; display:block; height:2px; width:100%; background:var(--red); margin-top:5px; }
-    .top-actions { margin-left: auto; display:flex; align-items:center; gap:14px; }
-    .search-wrap { position:relative; }
-    .search-wrap input {
-      width: clamp(150px, 20vw, 245px); height: 38px; padding: 0 40px 0 13px;
-      border: 1px solid rgba(255,255,255,.28); border-radius: 6px;
-      color: white; background: rgba(0,0,0,.56); outline: none; transition: width .2s, border .2s;
-    }
-    .search-wrap input:focus { width: clamp(180px, 24vw, 300px); border-color: white; }
-    .search-icon { position:absolute; right:12px; top:8px; opacity:.8; pointer-events:none; }
-    .avatar { width:34px; height:34px; border-radius:8px; display:grid; place-items:center; background:linear-gradient(135deg,#a11,#303030); font-weight:800; font-size:13px; }
-    .hero {
-      min-height: 660px; height: min(80vh, 780px); position:relative; display:flex; align-items:center;
-      overflow:hidden; padding: 115px clamp(22px, 6vw, 92px) 92px;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.78) 38%, rgba(0,0,0,.18) 75%, rgba(0,0,0,.35) 100%),
-        linear-gradient(0deg, #090909 0%, transparent 33%),
-        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=2200&q=85') center 42%/cover no-repeat;
-    }
-    .hero::before {
-      content:""; position:absolute; right:7%; top:17%; width:min(31vw,420px); aspect-ratio: .72;
-      border:1px solid rgba(255,255,255,.17); border-radius: 18px;
-      background: linear-gradient(155deg, rgba(230,9,20,.28), transparent 40%),
-        radial-gradient(circle at 65% 28%, rgba(255,255,255,.24), transparent 22%),
-        linear-gradient(145deg, rgba(30,30,30,.3), rgba(0,0,0,.85));
-      box-shadow: 0 35px 90px rgba(0,0,0,.5), inset 0 0 80px rgba(255,255,255,.04);
-      transform: perspective(900px) rotateY(-13deg) rotateZ(3deg);
-      mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-    }
-    .hero::after { content:"TELA+"; position:absolute; right:10.2%; top:35%; font-size:clamp(30px,5vw,72px); letter-spacing:5px; font-weight:950; color:rgba(255,255,255,.10); transform:rotate(-8deg); }
-    .hero-content { position:relative; z-index:1; max-width: 640px; }
-    .eyebrow { display:flex; align-items:center; gap:10px; color:#eee; font-size:12px; letter-spacing:2.5px; font-weight:800; text-transform:uppercase; }
-    .eyebrow .dot { width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 14px var(--red); }
-    h1 { font-size:clamp(42px, 6.4vw, 82px); line-height:.99; letter-spacing:-3px; margin:20px 0 20px; max-width:700px; }
-    h1 span { color:var(--red); }
-    .hero-copy { color:#d4d4d4; font-size:clamp(15px,1.4vw,18px); max-width:540px; margin:0 0 27px; }
-    .hero-buttons { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-    .btn { border:0; border-radius:5px; padding:12px 20px; min-height:46px; font-weight:800; display:inline-flex; gap:10px; align-items:center; justify-content:center; transition:transform .18s, background .18s; }
-    .btn:hover { transform:translateY(-2px); }
-    .btn-primary { background:#f4f4f4; color:#111; }
-    .btn-primary:hover { background:#d9d9d9; }
-    .btn-secondary { background:rgba(109,109,110,.58); color:white; backdrop-filter:blur(8px); }
-    .btn-secondary:hover { background:rgba(109,109,110,.8); }
-    .main { max-width:var(--max); margin:-38px auto 0; padding:0 clamp(18px,4vw,64px) 80px; position:relative; z-index:2; }
-    .notice {
-      border:1px solid rgba(255,255,255,.12); border-left:3px solid var(--red); border-radius:8px;
-      background:linear-gradient(100deg,rgba(35,35,35,.96),rgba(17,17,17,.93));
-      padding:13px 16px; margin-bottom:32px; color:#ccc; font-size:13px; display:flex; gap:12px; align-items:flex-start;
-    }
-    .notice strong { color:#fff; }
-    .section-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:27px 0 16px; }
-    .section-head h2 { font-size:clamp(20px,2vw,26px); margin:0; letter-spacing:-.5px; }
-    .section-head p { color:var(--muted); margin:4px 0 0; font-size:13px; }
-    .section-tools { display:flex; gap:8px; flex-wrap:wrap; }
-    .chip { border:1px solid rgba(255,255,255,.2); border-radius:99px; background:transparent; color:#ddd; padding:7px 13px; font-size:12px; }
-    .chip:hover, .chip.selected { border-color:var(--red); background:rgba(229,9,20,.14); color:white; }
-    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:12px 0 20px; }
-    .filters { display:flex; gap:8px; flex-wrap:wrap; }
-    .sort-select { color:#ddd; background:#171717; border:1px solid #444; border-radius:6px; padding:8px 10px; }
-    .catalog-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:17px; }
-    .movie-card { position:relative; min-width:0; border-radius:9px; overflow:hidden; background:#171717; border:1px solid rgba(255,255,255,.07); transition:transform .22s, box-shadow .22s; }
-    .movie-card:hover { transform:translateY(-5px) scale(1.015); box-shadow:0 16px 35px rgba(0,0,0,.48); z-index:2; }
-    .poster { position:relative; aspect-ratio: .72; overflow:hidden; background:
-      radial-gradient(circle at 70% 25%,rgba(229,9,20,.46),transparent 28%),
-      linear-gradient(145deg,#363636,#111 60%,#4a0b0e); }
-    .poster::after { content:""; position:absolute; inset:35% 0 0; background:linear-gradient(transparent,rgba(0,0,0,.78)); pointer-events:none; }
-    .poster img { width:100%; height:100%; object-fit:cover; display:block; opacity:.84; transition:transform .4s,opacity .3s; }
-    .movie-card:hover .poster img { transform:scale(1.06); opacity:1; }
-    .poster-fallback { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:15px; z-index:1; }
-    .poster-fallback .mini-brand { color:rgba(255,255,255,.65); font-size:9px; letter-spacing:3px; font-weight:900; margin-bottom:7px; }
-    .poster-fallback .poster-title { font-size:clamp(15px,1.6vw,22px); line-height:1.05; font-weight:950; letter-spacing:-.5px; text-transform:uppercase; text-shadow:0 2px 10px #000; }
-    .poster-fallback .poster-year { margin-top:7px; color:#ddd; font-size:11px; }
-    .license-badge { position:absolute; top:9px; left:9px; z-index:2; font-size:9px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:5px 7px; border-radius:4px; background:rgba(0,0,0,.76); color:#e8e8e8; backdrop-filter:blur(6px); }
-    .favorite { position:absolute; top:8px; right:8px; z-index:3; border:1px solid rgba(255,255,255,.28); background:rgba(0,0,0,.68); color:white; width:31px; height:31px; border-radius:50%; font-size:17px; line-height:1; }
-    .favorite.saved { color:#fff; background:var(--red); border-color:var(--red); }
-    .card-info { padding:11px 11px 13px; }
-    .card-title { font-size:14px; font-weight:800; line-height:1.25; margin:0 0 5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .card-meta { color:#aaa; font-size:11px; display:flex; gap:7px; align-items:center; }
-    .card-actions { display:flex; gap:7px; margin-top:11px; }
-    .card-actions button { border:0; border-radius:4px; font-size:11px; font-weight:800; padding:7px 9px; }
-    .play-small { background:#f1f1f1; color:#111; flex:1; }
-    .details-small { background:#343434; color:#eee; }
-    .state-panel { min-height:200px; border:1px dashed rgba(255,255,255,.18); border-radius:12px; display:grid; place-items:center; text-align:center; padding:32px; color:#aaa; }
-    .state-panel h3 { color:#f4f4f4; margin:0 0 7px; font-size:18px; }
-    .state-panel p { margin:0 auto 15px; max-width:520px; font-size:13px; }
-    .spinner { width:28px; height:28px; border:3px solid #444; border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 13px; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .footer { border-top:1px solid var(--line); padding:28px 0 8px; color:#8e8e8e; font-size:12px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
-    .footer a { color:#bbb; text-decoration:none; }
-    .footer a:hover { color:white; }
-    .modal-backdrop { position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.82); display:none; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(7px); }
-    .modal-backdrop.open { display:flex; }
-    .modal { width:min(960px,100%); max-height:92vh; overflow:auto; background:#171717; border:1px solid rgba(255,255,255,.15); border-radius:13px; box-shadow:0 30px 90px rgba(0,0,0,.6); position:relative; }
-    .modal-close { position:sticky; top:12px; margin:12px 12px -44px auto; z-index:5; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(0,0,0,.72); color:white; font-size:20px; }
-    .player-frame { width:100%; aspect-ratio:16/9; border:0; display:block; background:#000; }
-    .modal-body { padding:22px 25px 26px; }
-    .modal-body h2 { margin:0 0 8px; font-size:26px; }
-    .modal-body p { color:#c2c2c2; margin:8px 0 16px; font-size:14px; }
-    .meta-line { color:#aaa; font-size:12px; display:flex; gap:10px; flex-wrap:wrap; }
-    .source-line { font-size:12px; color:#aaa; margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
-    .source-line a { color:#fff; }
-    .toast { position:fixed; z-index:80; left:50%; bottom:22px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:#f1f1f1; color:#111; padding:10px 15px; border-radius:7px; box-shadow:0 8px 30px #0008; font-size:13px; font-weight:700; transition:.25s; }
-    .toast.show { opacity:1; transform:translate(-50%,0); }
-    @media (max-width:1050px) { .catalog-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .hero::before,.hero::after { right:3%; opacity:.65; } }
-    @media (max-width:760px) {
-      .topbar { height:64px; gap:16px; padding:0 16px; }
-      .brand-name { font-size:19px; }
-      .nav { gap:13px; font-size:12px; }
-      .nav button:nth-child(2), .nav button:nth-child(3) { display:none; }
-      .search-wrap input { width:40px; padding:0; border-color:transparent; background:transparent; color:transparent; }
-      .search-wrap input:focus { position:absolute; right:-2px; top:-18px; width:min(70vw,280px); padding:0 38px 0 12px; border-color:white; background:#111; color:white; }
-      .search-icon { right:10px; top:8px; }
-      .avatar { display:none; }
-      .hero { height:610px; min-height:580px; padding:120px 22px 80px; background-position:58% center; }
-      .hero::before,.hero::after { display:none; }
-      h1 { letter-spacing:-2px; }
-      .main { padding:0 16px 55px; margin-top:-24px; }
-      .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-      .card-info { padding:9px; }
-      .card-title { font-size:12px; }
-      .card-actions button { font-size:10px; padding:7px; }
-      .notice { font-size:12px; }
-      .section-head { align-items:flex-start; flex-direction:column; }
-      .footer { flex-direction:column; }
-    }
-    @media (min-width:761px) and (max-width:900px) { .catalog-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    :root{--bg:#08090d;--surface:#11131a;--surface2:#191c25;--line:rgba(255,255,255,.1);--text:#f5f6fa;--muted:#a8adbb;--red:#e50914;--cyan:#5eead4;--max:1420px;--radius:15px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}a{color:inherit}button,input{font:inherit}button{cursor:pointer}
+    .topbar{height:72px;position:fixed;z-index:30;inset:0 0 auto;display:flex;align-items:center;gap:34px;padding:0 clamp(16px,4vw,62px);background:linear-gradient(180deg,rgba(0,0,0,.92),rgba(0,0,0,.4));transition:.25s}.topbar.solid{background:rgba(8,9,13,.96);box-shadow:0 10px 30px #0005;backdrop-filter:blur(14px)}
+    .brand{display:flex;align-items:center;gap:9px;text-decoration:none;white-space:nowrap}.brand-icon{width:31px;height:31px;border-radius:8px;background:var(--red);display:grid;place-items:center;font-weight:1000;font-size:19px;box-shadow:0 5px 22px #e5091444;transform:skew(-7deg)}.brand-name{font-weight:950;letter-spacing:2px;font-size:22px}.brand-name b{color:var(--red)}
+    .nav{display:flex;gap:24px;align-items:center}.nav button{border:0;background:none;color:#d4d6de;font-size:13px;padding:8px 0}.nav button:hover,.nav button.active{color:white}.nav button.active{font-weight:800}.nav button.active:after{content:"";display:block;height:2px;background:var(--red);margin-top:6px}
+    .top-right{margin-left:auto;display:flex;align-items:center;gap:12px}.search{position:relative}.search input{width:clamp(150px,20vw,255px);height:39px;border:1px solid #ffffff40;border-radius:7px;background:#090a0ccc;color:white;padding:0 38px 0 13px;outline:0}.search input:focus{border-color:#fff;width:clamp(190px,24vw,310px)}.search span{position:absolute;right:12px;top:7px;color:#ddd;pointer-events:none}.profile{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#b91c1c,#292d3a);display:grid;place-items:center;font-size:12px;font-weight:900}
+    .hero{min-height:660px;height:min(84vh,790px);display:flex;align-items:center;position:relative;overflow:hidden;padding:120px clamp(20px,6vw,92px) 100px;background:linear-gradient(90deg,#08090d 0%,rgba(8,9,13,.94) 25%,rgba(8,9,13,.48) 65%,rgba(8,9,13,.22) 100%),linear-gradient(0deg,#08090d 0%,transparent 35%),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=2200&q=85') center 42%/cover no-repeat}
+    .hero:after{content:"TELA+";position:absolute;right:9%;top:35%;font-size:clamp(50px,10vw,140px);font-weight:1000;letter-spacing:10px;color:#ffffff10;transform:rotate(-9deg);pointer-events:none}.hero-content{position:relative;z-index:1;max-width:690px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.4px;font-weight:900;color:#eee;display:flex;align-items:center;gap:9px}.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 14px var(--red)}h1{font-size:clamp(44px,6.7vw,84px);line-height:.98;letter-spacing:-3.6px;margin:21px 0 22px}h1 em{font-style:normal;color:var(--red)}.hero p{max-width:570px;color:#d2d4dc;font-size:clamp(15px,1.5vw,18px);margin:0 0 27px}.hero-actions{display:flex;gap:11px;flex-wrap:wrap}.btn{min-height:45px;padding:11px 18px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:6px;text-decoration:none;font-weight:850;font-size:13px;transition:.2s}.btn:hover{transform:translateY(-2px)}.btn-light{background:#f4f5f8;color:#101116}.btn-red{background:var(--red);color:#fff}.btn-dark{background:#ffffff25;color:white;border:1px solid #ffffff24}.btn-outline{background:transparent;color:white;border:1px solid #ffffff42}
+    .main{max-width:var(--max);margin:-36px auto 0;padding:0 clamp(16px,4vw,60px) 80px;position:relative;z-index:2}.notice{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--cyan);background:linear-gradient(110deg,#191e25,#11131a);border-radius:9px;margin-bottom:32px;color:#c8ccd5;font-size:12px}.notice strong{color:#fff}.notice .info{font-weight:900;color:var(--cyan);font-size:17px;line-height:1}
+    .section{margin:38px 0 46px;scroll-margin-top:92px}.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:17px}.section-head h2{margin:0;font-size:clamp(21px,2vw,28px);letter-spacing:-.6px}.section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.text-link{border:0;background:none;color:#e9eaf0;text-decoration:underline;text-underline-offset:4px;font-size:12px;white-space:nowrap}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.chip{border:1px solid #ffffff28;background:transparent;color:#d9dbe2;border-radius:999px;padding:7px 13px;font-size:11px}.chip:hover,.chip.active{border-color:var(--red);background:#e5091422;color:white}
+    .catalog-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}.card{min-width:0;background:#151720;border:1px solid #ffffff0c;border-radius:11px;overflow:hidden;transition:transform .22s,box-shadow .22s}.card:hover{transform:translateY(-5px);box-shadow:0 18px 35px #0008}.poster{height:auto;aspect-ratio:.73;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:15px;background:var(--art,linear-gradient(140deg,#313848,#101116 65%,#7e111a))}.poster:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 20%,#ffffff33,transparent 25%),linear-gradient(0deg,#050609e8,transparent 65%)}.poster:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 20%,#ffffff0b 20.2%,transparent 20.6%)}.poster-copy{position:relative;z-index:1}.poster-kicker{font-size:9px;letter-spacing:2px;font-weight:900;color:#ffffffb8;text-transform:uppercase}.poster-title{font-size:clamp(18px,2vw,27px);font-weight:1000;line-height:.98;letter-spacing:-.8px;text-transform:uppercase;text-shadow:0 3px 12px #000}.poster-year{font-size:11px;color:#ddd;margin-top:7px}.ribbon{position:absolute;top:10px;left:10px;z-index:2;padding:5px 7px;border-radius:4px;background:#07130fdd;color:#a7f3d0;font-weight:900;font-size:9px;text-transform:uppercase;letter-spacing:.6px}.ribbon.brazil{background:#172033e8;color:#c7d2fe}.ribbon.check{background:#392a0de8;color:#fde68a}.fav{position:absolute;top:9px;right:9px;z-index:3;border:1px solid #ffffff3d;background:#050609aa;color:white;border-radius:50%;width:31px;height:31px;font-size:17px}.fav.saved{background:var(--red);border-color:var(--red)}.card-info{padding:11px 11px 13px}.card-title{font-size:13px;line-height:1.3;font-weight:850;margin:0 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-meta{font-size:10px;color:#aeb3c0;display:flex;gap:6px;align-items:center}.card-actions{display:flex;gap:7px;margin-top:10px}.card-actions button{font-size:10px;font-weight:850;border:0;border-radius:4px;padding:8px 8px}.watch{flex:1;background:#f3f3f4;color:#111}.more{background:#303440;color:white}
+    .service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.service{position:relative;background:linear-gradient(145deg,#191c26,#101218);border:1px solid #ffffff12;border-radius:12px;padding:17px;min-height:182px;display:flex;flex-direction:column;gap:8px;transition:.2s}.service:hover{transform:translateY(-3px);border-color:#ffffff38}.service-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.service-logo{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:15px;font-weight:1000;background:var(--logo,#252a36);color:white}.tag{font-size:9px;letter-spacing:.5px;text-transform:uppercase;border-radius:99px;padding:5px 8px;background:#0d362b;color:#a7f3d0;font-weight:900}.service h3{font-size:15px;margin:2px 0 0}.service p{font-size:11px;color:#aeb3c0;margin:0;flex:1}.service-meta{color:#d7dae2;font-size:10px}.service a{font-size:11px;color:#fff;font-weight:850;text-decoration:none;margin-top:4px}.service a:hover{text-decoration:underline}.service a span{color:var(--cyan)}
+    .series-banner{border:1px solid #ffffff13;border-radius:13px;padding:25px;background:radial-gradient(circle at 85% 20%,#7f1d1d55,transparent 35%),linear-gradient(120deg,#191c25,#11131a);display:grid;grid-template-columns:1.4fr .8fr;gap:20px;align-items:center}.series-banner h3{font-size:25px;line-height:1.1;margin:0 0 8px}.series-banner p{font-size:12px;color:#b4b8c4;margin:0 0 15px;max-width:580px}.provider-pills{display:flex;gap:8px;flex-wrap:wrap}.provider-pills a{border:1px solid #ffffff22;border-radius:7px;padding:8px 10px;text-decoration:none;font-size:10px;background:#ffffff09}.provider-pills a:hover{border-color:var(--red)}.series-art{min-height:165px;border-radius:10px;background:linear-gradient(145deg,#5b1020,#111827 55%,#0f766e);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.series-art:before{content:"SÉRIES";font-size:clamp(30px,5vw,65px);letter-spacing:3px;font-weight:1000;color:#ffffff18;transform:rotate(-10deg)}.series-art:after{content:"▶";position:absolute;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#ffffffdd;color:#141414;font-size:20px;box-shadow:0 0 60px #fff6}
+    .finder{display:grid;grid-template-columns:1fr auto;gap:10px;padding:17px;border-radius:12px;border:1px solid #ffffff13;background:#151821}.finder input{width:100%;min-width:0;background:#090b10;border:1px solid #ffffff28;border-radius:7px;color:white;padding:12px 14px;outline:none}.finder input:focus{border-color:#aaa}.finder small{grid-column:1/-1;color:#9fa5b4;font-size:10px}.empty{display:none;text-align:center;color:#aeb3c0;padding:35px;border:1px dashed #ffffff30;border-radius:10px;grid-column:1/-1}.footer{border-top:1px solid var(--line);padding:26px 0 5px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:#858b9b;font-size:10px}.footer a{color:#c5c9d2;text-decoration:none}.footer a:hover{text-decoration:underline}
+    .modal-bg{position:fixed;inset:0;z-index:60;background:#000d;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px)}.modal-bg.open{display:flex}.modal{width:min(620px,100%);background:#181b24;border:1px solid #ffffff22;border-radius:14px;overflow:hidden;box-shadow:0 30px 100px #000a}.modal-hero{min-height:210px;padding:28px;display:flex;align-items:flex-end;position:relative;background:var(--art,linear-gradient(120deg,#333,#111))}.modal-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#08090d,transparent 100%)}.modal-hero h2{position:relative;z-index:1;margin:0;font-size:32px;line-height:1}.modal-body{padding:22px 25px 26px}.modal-body p{font-size:13px;color:#c3c7d1}.modal-body .btn{margin:5px 6px 0 0}.modal-x{position:absolute;top:12px;right:12px;z-index:3;border:0;border-radius:50%;width:34px;height:34px;background:#0009;color:#fff;font-size:21px}.toast{position:fixed;z-index:80;left:50%;bottom:22px;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#f3f4f6;color:#111;padding:10px 15px;border-radius:7px;font-size:12px;font-weight:800;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:1050px){.catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.service-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero:after{right:3%}}
+    @media(max-width:760px){.topbar{height:63px;padding:0 14px;gap:14px}.brand-name{font-size:19px}.nav{gap:13px}.nav button:nth-child(2),.nav button:nth-child(3){display:none}.search input{width:38px;padding:0;border-color:transparent;background:transparent;color:transparent}.search input:focus{position:absolute;right:-3px;top:-18px;width:min(70vw,285px);padding:0 36px 0 12px;background:#101116;color:#fff;border-color:#fff}.profile{display:none}.hero{height:620px;min-height:570px;padding:115px 22px 80px;background-position:60% center}.hero:after{display:none}h1{letter-spacing:-2.4px}.main{padding:0 14px 55px;margin-top:-25px}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.service{padding:13px;min-height:185px}.service p{font-size:10px}.poster{padding:11px}.poster-title{font-size:20px}.card-info{padding:9px}.card-title{font-size:12px}.series-banner{grid-template-columns:1fr;padding:18px}.series-art{min-height:100px}.finder{grid-template-columns:1fr}.finder .btn{width:100%}.section-head{align-items:flex-start;flex-direction:column}.notice{font-size:11px}.footer{flex-direction:column}}
+    @media(max-width:390px){.service-grid{grid-template-columns:1fr}.catalog-grid{gap:8px}.poster-title{font-size:17px}.card-actions button{padding:7px 5px;font-size:9px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
-  <header class="topbar" id="topbar">
-    <a class="brand" href="#inicio" aria-label="TELA+ início">
-      <span class="brand-mark">T</span><span class="brand-name">TELA<span>+</span></span>
-    </a>
-    <nav class="nav" aria-label="Navegação principal">
-      <button class="active" data-nav="home">Início</button>
-      <button data-nav="movie">Filmes</button>
-      <button data-nav="series">Séries</button>
-      <button data-nav="saved">Minha lista</button>
-    </nav>
-    <div class="top-actions">
-      <div class="search-wrap">
-        <input id="searchInput" type="search" placeholder="Buscar no acervo..." aria-label="Buscar filmes e séries" />
-        <span class="search-icon" aria-hidden="true">⌕</span>
-      </div>
-      <div class="avatar" title="Seu perfil">T+</div>
-    </div>
-  </header>
+<header class="topbar" id="topbar">
+  <a class="brand" href="#inicio" aria-label="TELA+ início"><span class="brand-icon">T</span><span class="brand-name">TELA<b>+</b></span></a>
+  <nav class="nav" aria-label="Menu principal">
+    <button class="active" data-go="inicio">Início</button><button data-go="catalogo">Filmes</button><button data-go="series">Séries</button><button data-go="plataformas">Plataformas</button><button data-go="minhalista">Minha lista</button>
+  </nav>
+  <div class="top-right"><label class="search"><input id="quickSearch" type="search" placeholder="Buscar título..." aria-label="Buscar título"><span>⌕</span></label><div class="profile" title="Perfil TELA+">T+</div></div>
+</header>
+<section class="hero" id="inicio">
+  <div class="hero-content">
+    <div class="eyebrow"><i></i> Descubra onde assistir sem mensalidade</div>
+    <h1>Seu próximo filme.<br><em>Sem outra assinatura.</em></h1>
+    <p>Explore filmes e séries em catálogos gratuitos e oficiais. O TELA+ reúne os caminhos para assistir sem pagar mensalidade e ajuda a encontrar onde cada título está disponível.</p>
+    <div class="hero-actions"><a class="btn btn-light" href="#catalogo">▶ Explorar títulos</a><a class="btn btn-dark" href="#plataformas">▣ Ver plataformas gratuitas</a></div>
+  </div>
+</section>
+<main class="main">
+  <div class="notice"><span class="info">ⓘ</span><div><strong>Transparência:</strong> o TELA+ não hospeda filmes, não remove bloqueios e não oferece cópias de obras pagas. Ele organiza catálogos oficiais e leva você ao serviço que detém os direitos. A disponibilidade pode mudar por região e data. Títulos exclusivos da Netflix ou de outro serviço pago continuam exigindo assinatura, a menos que também sejam licenciados por uma fonte gratuita.</div></div>
 
-  <section class="hero" id="inicio">
-    <div class="hero-content">
-      <div class="eyebrow"><span class="dot"></span> Seu próximo filme começa aqui</div>
-      <h1>Grandes histórias.<br /><span>Novas descobertas.</span></h1>
-      <p class="hero-copy">Explore um catálogo conectado a acervos audiovisuais abertos. Descubra clássicos, obras independentes e episódios que podem ser exibidos diretamente da fonte.</p>
-      <div class="hero-buttons">
-        <button class="btn btn-primary" id="exploreBtn"><span>▶</span> Explorar catálogo</button>
-        <button class="btn btn-secondary" id="aboutBtn"><span>ⓘ</span> Como funciona</button>
-      </div>
-    </div>
+  <section class="section" id="catalogo">
+    <div class="section-head"><div><h2>Filmes que você pode encontrar grátis</h2><p>Seleção vista na página oficial gratuita do Mercado Play. Confira o selo “Assistir grátis” ao abrir, pois os catálogos mudam.</p></div><a class="text-link" href="https://play.mercadolivre.com.br/filtrar/gratuito" target="_blank" rel="noopener">Abrir catálogo grátis ↗</a></div>
+    <div class="chips" id="filters"><button class="chip active" data-filter="todos">Todos</button><button class="chip" data-filter="aventura">Aventura e família</button><button class="chip" data-filter="comedia">Comédia</button><button class="chip" data-filter="acao">Ação</button><button class="chip" data-filter="salvos">Minha lista</button></div>
+    <div class="catalog-grid" id="movieGrid"></div><div class="empty" id="movieEmpty">Nenhum título corresponde à busca. Tente outro nome ou veja as plataformas abaixo.</div>
   </section>
 
-  <main class="main" id="catalogo">
-    <div class="notice">
-      <span aria-hidden="true">ⓘ</span>
-      <div><strong>Catálogo de acervo aberto.</strong> Os vídeos são reproduzidos no player do Internet Archive; este site não hospeda nem copia os arquivos. A licença e a legislação aplicável devem ser conferidas antes de qualquer uso ou redistribuição.</div>
-    </div>
+  <section class="section" id="series">
+    <div class="section-head"><div><h2>Hora de maratonar</h2><p>Atalhos para catálogos com séries e programas gratuitos. Confirme a etiqueta gratuita antes de reproduzir.</p></div></div>
+    <div class="series-banner"><div><div class="eyebrow"><i></i> Séries, temporadas e episódios</div><h3>Uma boa série não precisa de mais uma mensalidade.</h3><p>Explore catálogos sob demanda e canais gratuitos. Alguns serviços misturam títulos gratuitos e pagos; use os filtros de preço e escolha somente os que indicam acesso grátis.</p><div class="provider-pills"><a href="https://play.mercadolivre.com.br/filtrar/series" target="_blank" rel="noopener">Mercado Play · Séries ↗</a><a href="https://watch.plex.tv/pt-BR/on-demand" target="_blank" rel="noopener">Plex · Sob demanda ↗</a><a href="https://pluto.tv/br" target="_blank" rel="noopener">Pluto TV ↗</a><a href="https://play.ebc.com.br/" target="_blank" rel="noopener">EBC Play ↗</a></div></div><div class="series-art" aria-hidden="true"></div></div>
+    <div class="section-head" style="margin-top:22px"><div><h2>Séries para pesquisar</h2><p>Títulos que aparecem nas áreas gratuitas das páginas oficiais do Plex e da Pluto TV. Catálogos e disponibilidade regional podem mudar.</p></div><a class="text-link" href="https://watch.plex.tv/pt-BR/on-demand" target="_blank" rel="noopener">Ver séries grátis no Plex ↗</a></div>
+    <div class="catalog-grid" id="seriesGrid"></div>
+  </section>
 
-    <div class="section-head">
-      <div>
-        <h2 id="sectionTitle">Descubra algo novo</h2>
-        <p id="sectionSubtitle">Obras audiovisuais com licença aberta ou indicação de domínio público.</p>
-      </div>
-      <div class="section-tools">
-        <button class="chip selected" data-quick="all">Todos</button>
-        <button class="chip" data-quick="public">Domínio público</button>
-        <button class="chip" data-quick="cc">Creative Commons</button>
-      </div>
-    </div>
+  <section class="section" id="brasil">
+    <div class="section-head"><div><h2>Cinema brasileiro gratuito</h2><p>Filmes, documentários e produções nacionais em plataformas culturais oficiais.</p></div></div>
+    <div class="catalog-grid" id="brazilGrid"></div>
+  </section>
 
-    <div class="toolbar">
-      <div class="filters">
-        <button class="chip selected" data-filter="all">Tudo</button>
-        <button class="chip" data-filter="movie">Filmes</button>
-        <button class="chip" data-filter="series">Séries / episódios</button>
-      </div>
-      <select class="sort-select" id="sortSelect" aria-label="Ordenar catálogo">
-        <option value="popular">Mais acessados no acervo</option>
-        <option value="new">Mais recentes</option>
-        <option value="old">Mais antigos</option>
-        <option value="az">Nome: A–Z</option>
-      </select>
-    </div>
+  <section class="section" id="plataformas">
+    <div class="section-head"><div><h2>Plataformas gratuitas e oficiais</h2><p>Acesse diretamente os serviços. Alguns exibem anúncios ou pedem cadastro gratuito.</p></div></div>
+    <div class="service-grid" id="serviceGrid"></div>
+  </section>
 
-    <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
-    <div id="statePanel" class="state-panel">
-      <div>
-        <div class="spinner"></div>
-        <h3>Conectando ao acervo...</h3>
-        <p>Buscando filmes e vídeos com licenças abertas no Internet Archive.</p>
-      </div>
-    </div>
+  <section class="section" id="buscar">
+    <div class="section-head"><div><h2>Procurar em Netflix e outras plataformas</h2><p>Pesquise um título e confira onde ele está licenciado no Brasil — inclusive opções gratuitas.</p></div></div>
+    <div class="finder"><input id="whereSearch" type="search" placeholder="Ex.: Stranger Things, Homem-Aranha, The Last of Us..."><button class="btn btn-red" id="whereButton">Encontrar onde assistir ↗</button><small>O JustWatch compara Netflix, Prime Video, Disney+, Max, Apple TV e serviços gratuitos. Use o filtro de preço “Gratuito” para ver opções sem assinatura. O guia não desbloqueia títulos pagos.</small></div>
+  </section>
 
-    <footer class="footer">
-      <div>© 2026 TELA+. Projeto independente de descoberta audiovisual.</div>
-      <div><a href="https://archive.org/" target="_blank" rel="noopener">Internet Archive</a> · <a href="https://creativecommons.org/share-your-work/cclicenses/" target="_blank" rel="noopener">Licenças Creative Commons</a></div>
-    </footer>
-  </main>
+  <section class="section" id="minhalista">
+    <div class="section-head"><div><h2>Minha lista</h2><p>Salve os títulos que quer conferir depois. A lista fica neste navegador.</p></div></div>
+    <div class="catalog-grid" id="savedGrid"></div><div class="empty" id="savedEmpty">Você ainda não salvou nenhum título. Use o botão + nos cards para montar sua lista.</div>
+  </section>
 
-  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="Detalhes do título">
-    <div class="modal" id="modalContent">
-      <button class="modal-close" id="closeModal" aria-label="Fechar">×</button>
-      <div id="modalInner"></div>
-    </div>
-  </div>
-  <div class="toast" id="toast" role="status"></div>
-
-  <script>
-    (() => {
-      'use strict';
-      const API = 'https://archive.org/advancedsearch.php';
-      const LICENSE_QUERY = [
-        'licenseurl:"http://creativecommons.org/publicdomain/mark/1.0/"',
-        'licenseurl:"https://creativecommons.org/publicdomain/mark/1.0/"',
-        'licenseurl:"http://creativecommons.org/publicdomain/zero/1.0/"',
-        'licenseurl:"https://creativecommons.org/publicdomain/zero/1.0/"',
-        'licenseurl:"http://creativecommons.org/licenses/by/4.0/"',
-        'licenseurl:"https://creativecommons.org/licenses/by/4.0/"',
-        'licenseurl:"http://creativecommons.org/licenses/by-sa/4.0/"',
-        'licenseurl:"https://creativecommons.org/licenses/by-sa/4.0/"',
-        'licenseurl:"http://creativecommons.org/licenses/by/3.0/"',
-        'licenseurl:"https://creativecommons.org/licenses/by/3.0/"',
-        'licenseurl:"http://creativecommons.org/licenses/by-sa/3.0/"',
-        'licenseurl:"https://creativecommons.org/licenses/by-sa/3.0/"'
-      ];
-      const ALLOWED_LICENSE = /(publicdomain\/(mark|zero)\/1\.0|licenses\/by(-sa)?\/(3\.0|4\.0))/i;
-      const state = { all: [], visible: [], filter: 'all', quick: 'all', page: 1, query: '', section: 'home' };
-      const $ = (id) => document.getElementById(id);
-      const grid = $('catalogGrid');
-      const panel = $('statePanel');
-      let toastTimer;
-      let searchTimer;
-      let requestController;
-      let saved = readSaved();
-
-      function readSaved() {
-        try { return new Set(JSON.parse(localStorage.getItem('tela_saved') || '[]')); }
-        catch { return new Set(); }
-      }
-      function persistSaved() {
-        try { localStorage.setItem('tela_saved', JSON.stringify([...saved])); }
-        catch { showToast('Não foi possível salvar neste navegador.'); }
-      }
-      function showToast(message) {
-        const el = $('toast'); el.textContent = message; el.classList.add('show');
-        clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
-      }
-      function escapeHTML(value) {
-        return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      }
-      function safeIdentifier(value) {
-        const id = String(value || '');
-        return /^[a-zA-Z0-9._-]{1,180}$/.test(id) ? id : '';
-      }
-      function licenseKind(url) {
-        const u = String(url || '');
-        if (/publicdomain\/mark/i.test(u)) return 'Domínio público';
-        if (/publicdomain\/zero/i.test(u)) return 'CC0';
-        if (/by-sa/i.test(u)) return 'CC BY-SA';
-        if (/licenses\/by/i.test(u)) return 'CC BY';
-        return 'Licença a conferir';
-      }
-      function isSeries(item) {
-        const text = [item.title, item.description, item.subject].flat().join(' ').toLowerCase();
-        return /\b(series|serial|season|episode|episódio|temporada|s\d{1,2}e\d{1,2}|episode\s*\d+)\b/.test(text);
-      }
-      function normalize(doc) {
-        const id = safeIdentifier(doc.identifier);
-        const license = Array.isArray(doc.licenseurl) ? doc.licenseurl[0] : doc.licenseurl;
-        if (!id || !license || !ALLOWED_LICENSE.test(license)) return null;
-        return {
-          id,
-          title: String(doc.title || id.replace(/[_-]/g, ' ')),
-          year: String(doc.year || doc.date || '').slice(0,4),
-          creator: Array.isArray(doc.creator) ? doc.creator.join(', ') : String(doc.creator || ''),
-          description: Array.isArray(doc.description) ? doc.description.join(' ') : String(doc.description || ''),
-          subject: Array.isArray(doc.subject) ? doc.subject.join(' ') : String(doc.subject || ''),
-          license,
-          downloads: Number(doc.downloads || 0),
-          type: isSeries(doc) ? 'series' : 'movie'
-        };
-      }
-      function makeQuery(searchText = '') {
-        const rights = '(' + LICENSE_QUERY.join(' OR ') + ')';
-        if (!searchText.trim()) return 'mediatype:movies AND ' + rights;
-        const safe = searchText.trim().replace(/[+\-!(){}\[\]^"~*?:\\/|&]/g, ' ').replace(/\s+/g, ' ').slice(0,90);
-        return 'mediatype:movies AND (title:("' + safe + '") OR description:("' + safe + '") OR subject:("' + safe + '")) AND ' + rights;
-      }
-      function showLoading(message = 'Consultando o Internet Archive...') {
-        grid.innerHTML = '';
-        panel.style.display = 'grid';
-        panel.innerHTML = '<div><div class="spinner"></div><h3>' + escapeHTML(message) + '</h3><p>Os resultados são carregados diretamente do acervo aberto.</p></div>';
-      }
-      function showEmpty(title, message, directQuery) {
-        panel.style.display = 'grid';
-        const q = encodeURIComponent(directQuery || makeQuery(state.query));
-        panel.innerHTML = '<div><h3>' + escapeHTML(title) + '</h3><p>' + escapeHTML(message) + '</p><a class="btn btn-secondary" style="text-decoration:none" href="https://archive.org/advancedsearch.php?q=' + q + '&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=licenseurl&rows=24&page=1&output=json" target="_blank" rel="noopener">Abrir pesquisa no Internet Archive ↗</a></div>';
-      }
-      async function loadCatalog(searchText = '', opts = {}) {
-        if (requestController) requestController.abort();
-        requestController = new AbortController();
-        state.query = searchText;
-        if (!opts.keepFilter) state.filter = state.section === 'movie' ? 'movie' : state.section === 'series' ? 'series' : 'all';
-        showLoading(searchText ? 'Procurando por “' + searchText + '”' : 'Conectando ao acervo...');
-        const params = new URLSearchParams();
-        params.set('q', makeQuery(searchText));
-        params.append('fl[]', 'identifier'); params.append('fl[]', 'title');
-        params.append('fl[]', 'year'); params.append('fl[]', 'date');
-        params.append('fl[]', 'creator'); params.append('fl[]', 'description');
-        params.append('fl[]', 'subject'); params.append('fl[]', 'licenseurl');
-        params.append('fl[]', 'downloads');
-        params.set('rows', '60'); params.set('page', '1'); params.set('output', 'json');
-        params.append('sort[]', 'downloads desc');
-        try {
-          const response = await fetch(API + '?' + params.toString(), { signal: requestController.signal, headers: { 'Accept': 'application/json' } });
-          if (!response.ok) throw new Error('HTTP ' + response.status);
-          const payload = await response.json();
-          const docs = payload && payload.response && Array.isArray(payload.response.docs) ? payload.response.docs : [];
-          state.all = docs.map(normalize).filter(Boolean);
-          applyFilters();
-          if (!state.all.length) {
-            showEmpty('Nenhum título encontrado', 'Tente outro termo. O acervo pode não ter resultados com uma das licenças aceitas pelo site.', makeQuery(searchText));
-          }
-        } catch (error) {
-          if (error.name === 'AbortError') return;
-          state.all = []; state.visible = []; grid.innerHTML = '';
-          showEmpty('Não foi possível conectar ao acervo', 'Verifique sua internet. Para testar a integração, publique o site em HTTPS (por exemplo, GitHub Pages) ou abra a pesquisa diretamente no Internet Archive.', makeQuery(searchText));
-        }
-      }
-      function applyFilters() {
-        let items = [...state.all];
-        if (state.filter === 'movie') items = items.filter(x => x.type === 'movie');
-        if (state.filter === 'series') items = items.filter(x => x.type === 'series');
-        if (state.quick === 'public') items = items.filter(x => /publicdomain|zero/i.test(x.license));
-        if (state.quick === 'cc') items = items.filter(x => /licenses\/by/i.test(x.license));
-        const sort = $('sortSelect').value;
-        if (sort === 'new') items.sort((a,b) => Number(b.year || 0) - Number(a.year || 0));
-        if (sort === 'old') items.sort((a,b) => Number(a.year || 9999) - Number(b.year || 9999));
-        if (sort === 'az') items.sort((a,b) => a.title.localeCompare(b.title));
-        if (sort === 'popular') items.sort((a,b) => b.downloads - a.downloads);
-        if (state.section === 'saved') items = items.filter(x => saved.has(x.id));
-        state.visible = items;
-        renderCards(items);
-        $('sectionTitle').textContent = state.section === 'saved' ? 'Minha lista' : state.section === 'series' ? 'Séries e episódios' : state.section === 'movie' ? 'Filmes' : state.query ? 'Resultados da busca' : 'Descubra algo novo';
-        $('sectionSubtitle').textContent = state.section === 'saved' ? 'Títulos que você salvou neste navegador.' : items.length + ' título(s) disponíveis nesta seleção.';
-      }
-      function renderCards(items) {
-        grid.innerHTML = '';
-        if (!items.length) {
-          panel.style.display = 'grid';
-          panel.innerHTML = '<div><h3>' + (state.section === 'saved' ? 'Sua lista ainda está vazia' : 'Nada por aqui') + '</h3><p>' + (state.section === 'saved' ? 'Use o botão de coração nos títulos para guardá-los aqui.' : 'Mude os filtros ou tente uma busca diferente.') + '</p></div>';
-          return;
-        }
-        panel.style.display = 'none';
-        const frag = document.createDocumentFragment();
-        items.forEach(item => frag.appendChild(createCard(item)));
-        grid.appendChild(frag);
-      }
-      function createCard(item) {
-        const card = document.createElement('article'); card.className = 'movie-card';
-        const poster = document.createElement('div'); poster.className = 'poster';
-        const fallback = document.createElement('div'); fallback.className = 'poster-fallback';
-        fallback.innerHTML = '<div class="mini-brand">TELA+ ACERVO</div><div class="poster-title">' + escapeHTML(item.title) + '</div><div class="poster-year">' + escapeHTML(item.year || 'SEM DATA') + '</div>';
-        poster.appendChild(fallback);
-        const img = document.createElement('img'); img.loading = 'lazy'; img.alt = 'Capa de ' + item.title;
-        img.src = 'https://archive.org/services/img/' + encodeURIComponent(item.id);
-        img.addEventListener('load', () => { fallback.style.opacity = '.7'; }, { once:true });
-        img.addEventListener('error', () => img.remove(), { once:true });
-        poster.prepend(img);
-        const badge = document.createElement('span'); badge.className = 'license-badge'; badge.textContent = licenseKind(item.license); poster.appendChild(badge);
-        const fav = document.createElement('button'); fav.className = 'favorite' + (saved.has(item.id) ? ' saved' : ''); fav.type='button'; fav.title='Adicionar à Minha lista'; fav.setAttribute('aria-label', 'Salvar ' + item.title); fav.textContent = saved.has(item.id) ? '♥' : '＋';
-        fav.addEventListener('click', (e) => { e.stopPropagation(); toggleSaved(item); fav.classList.toggle('saved', saved.has(item.id)); fav.textContent = saved.has(item.id) ? '♥' : '＋'; });
-        poster.appendChild(fav);
-        const info = document.createElement('div'); info.className = 'card-info';
-        const title = document.createElement('h3'); title.className='card-title'; title.textContent=item.title; title.title=item.title;
-        const meta = document.createElement('div'); meta.className='card-meta'; meta.innerHTML = '<span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + (item.type === 'series' ? 'Série / episódio' : 'Filme / vídeo') + '</span>';
-        const actions = document.createElement('div'); actions.className='card-actions';
-        const play = document.createElement('button'); play.className='play-small'; play.type='button'; play.textContent='▶ Assistir'; play.addEventListener('click', () => openPlayer(item));
-        const details = document.createElement('button'); details.className='details-small'; details.type='button'; details.textContent='Detalhes'; details.addEventListener('click', () => openDetails(item));
-        actions.append(play, details); info.append(title, meta, actions); card.append(poster, info);
-        return card;
-      }
-      function toggleSaved(item) {
-        if (saved.has(item.id)) { saved.delete(item.id); showToast('Removido da Minha lista.'); }
-        else { saved.add(item.id); showToast('Adicionado à Minha lista.'); }
-        persistSaved();
-        if (state.section === 'saved') applyFilters();
-      }
-      function openModal(inner) {
-        $('modalInner').innerHTML = inner;
-        $('modalBackdrop').classList.add('open');
-        document.body.style.overflow='hidden';
-      }
-      function closeModal() {
-        $('modalBackdrop').classList.remove('open'); $('modalInner').innerHTML=''; document.body.style.overflow='';
-      }
-      function openPlayer(item) {
-        const id = safeIdentifier(item.id); if (!id) return;
-        const title = escapeHTML(item.title);
-        openModal('<iframe class="player-frame" src="https://archive.org/embed/' + encodeURIComponent(id) + '" title="' + title + '" allow="fullscreen; autoplay" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>' +
-          '<div class="modal-body"><h2>' + title + '</h2><div class="meta-line"><span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + escapeHTML(licenseKind(item.license)) + '</span></div><p>Este conteúdo está sendo reproduzido pelo player do Internet Archive. A disponibilidade e a qualidade dependem do serviço de origem.</p><div class="source-line">Fonte original: <a href="https://archive.org/details/' + encodeURIComponent(id) + '" target="_blank" rel="noopener">abrir página do título no Internet Archive ↗</a></div></div>');
-      }
-      function openDetails(item) {
-        const id=safeIdentifier(item.id); const desc=item.description || 'O acervo não forneceu uma sinopse para este título.';
-        const creator=item.creator ? '<span>Por ' + escapeHTML(item.creator) + '</span><span>•</span>' : '';
-        const license=escapeHTML(item.license);
-        openModal('<div class="modal-body" style="padding-top:62px"><div class="eyebrow"><span class="dot"></span> ' + escapeHTML(licenseKind(item.license)) + '</div><h2 style="margin-top:12px">' + escapeHTML(item.title) + '</h2><div class="meta-line">' + creator + '<span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + (item.type==='series'?'Série / episódio':'Filme / vídeo') + '</span></div><p>' + escapeHTML(desc) + '</p><div class="source-line"><strong>Licença informada pelo acervo:</strong><br><a href="' + escapeHTML(item.license) + '" target="_blank" rel="noopener">' + license + ' ↗</a><br><br><a href="https://archive.org/details/' + encodeURIComponent(id) + '" target="_blank" rel="noopener">Consultar registro original ↗</a></div><div class="hero-buttons" style="margin-top:20px"><button class="btn btn-primary" id="modalPlay">▶ Assistir</button><button class="btn btn-secondary" id="modalSave">' + (saved.has(id)?'♥ Na minha lista':'＋ Minha lista') + '</button></div></div>');
-        $('modalPlay').addEventListener('click', () => openPlayer(item));
-        $('modalSave').addEventListener('click', () => { toggleSaved(item); $('modalSave').textContent = saved.has(id) ? '♥ Na minha lista' : '＋ Minha lista'; });
-      }
-      function setSection(section) {
-        state.section=section;
-        document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav===section));
-        if (section === 'home') { state.filter='all'; state.quick='all'; if (!state.all.length) loadCatalog(''); else applyFilters(); }
-        else if (section === 'movie' || section === 'series') { state.filter=section; applyFilters(); }
-        else if (section === 'saved') { state.filter='all'; state.quick='all'; applyFilters(); }
-        document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('selected', b.dataset.filter===state.filter));
-        document.querySelectorAll('[data-quick]').forEach(b => b.classList.toggle('selected', b.dataset.quick===state.quick));
-        $('catalogo').scrollIntoView({behavior:'smooth',block:'start'});
-      }
-      document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', () => setSection(btn.dataset.nav)));
-      document.querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => {
-        state.filter=btn.dataset.filter; state.section='home';
-        document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('selected',b===btn));
-        document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav==='home'));
-        applyFilters();
-      }));
-      document.querySelectorAll('[data-quick]').forEach(btn => btn.addEventListener('click', () => {
-        state.quick=btn.dataset.quick; document.querySelectorAll('[data-quick]').forEach(b=>b.classList.toggle('selected',b===btn)); applyFilters();
-      }));
-      $('sortSelect').addEventListener('change', applyFilters);
-      $('searchInput').addEventListener('input', e => {
-        clearTimeout(searchTimer); const value=e.target.value.trim();
-        searchTimer=setTimeout(() => { state.section='home'; state.filter='all'; document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav==='home')); loadCatalog(value); }, 550);
-      });
-      $('searchInput').addEventListener('keydown', e => { if(e.key==='Enter'){ clearTimeout(searchTimer); loadCatalog(e.target.value.trim()); } });
-      $('exploreBtn').addEventListener('click', () => $('catalogo').scrollIntoView({behavior:'smooth'}));
-      $('aboutBtn').addEventListener('click', () => openModal('<div class="modal-body" style="padding-top:62px"><div class="eyebrow"><span class="dot"></span> Sobre a plataforma</div><h2>Um catálogo conectado à origem</h2><p>O TELA+ consulta os metadados do Internet Archive para encontrar vídeos que declaram licenças abertas ou indicação de domínio público. Quando você aperta “Assistir”, o conteúdo é carregado no player oficial do próprio acervo.</p><p><strong>Importante:</strong> uma licença registrada no site de origem não substitui a verificação jurídica do material, da versão/restauração e das regras do país onde será exibido. O TELA+ é uma interface de descoberta, não um serviço que hospeda cópias.</p><div class="source-line"><a href="https://archive.org/developers/" target="_blank" rel="noopener">Documentação para desenvolvedores do Internet Archive ↗</a><br><a href="https://archivesupport.zendesk.com/hc/en-us/articles/360017808151-Movies-and-Videos-A-Basic-Guide" target="_blank" rel="noopener">Orientações do Internet Archive sobre direitos de vídeos ↗</a></div></div>'));
-      $('closeModal').addEventListener('click', closeModal);
-      $('modalBackdrop').addEventListener('click', e => { if(e.target === $('modalBackdrop')) closeModal(); });
-      document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
-      window.addEventListener('scroll', () => $('topbar').classList.toggle('scrolled', window.scrollY>30), {passive:true});
-      loadCatalog('');
-    })();
-  </script>
+  <footer class="footer"><div>© 2026 TELA+ · Guia independente de descoberta audiovisual.</div><div><a href="https://www.gov.br/cultura/pt-br/assuntos/noticias/tela-brasil-confira-como-acessar-a-plataforma-publica-de-streaming" target="_blank" rel="noopener">Tela Brasil · MinC</a> · <a href="https://www.justwatch.com/br" target="_blank" rel="noopener">JustWatch</a> · <a href="https://www.pluto.tv/br" target="_blank" rel="noopener">Pluto TV</a></div></footer>
+</main>
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-hero" id="modalHero"><button class="modal-x" id="modalClose" aria-label="Fechar">×</button><h2 id="modalTitle"></h2></div><div class="modal-body" id="modalBody"></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(()=>{
+  'use strict';
+  const MARKET='https://play.mercadolivre.com.br/filtrar/gratuito';
+  const JUST='https://www.justwatch.com/br/busca?q=';
+  const movies=[
+    {id:'iceage',title:'A Era do Gelo',year:'2002',genre:'aventura',kind:'Animação · Família',source:'Mercado Play',art:'linear-gradient(135deg,#16324a,#4b6a75 48%,#13212c)',desc:'Uma turma improvável de animais pré-históricos embarca em uma aventura para proteger um bebê humano.',url:MARKET},
+    {id:'rio',title:'Rio',year:'2011',genre:'aventura',kind:'Animação · Aventura',source:'Mercado Play',art:'linear-gradient(135deg,#087e8b,#1b9aaa 48%,#f0a202)',desc:'Uma arara criada em cativeiro chega ao Rio de Janeiro e vive uma aventura cheia de música e descobertas.',url:MARKET},
+    {id:'scarymovie',title:'Todo Mundo em Pânico',year:'2000',genre:'comedia',kind:'Comédia',source:'Mercado Play',art:'linear-gradient(135deg,#31104b,#9a1c40 55%,#100d1a)',desc:'Uma comédia que brinca com os clichês dos filmes de terror.',url:MARKET},
+    {id:'spiderman',title:'Homem-Aranha: De Volta ao Lar',year:'2017',genre:'acao',kind:'Ação · Aventura',source:'Mercado Play',art:'linear-gradient(135deg,#73151d,#1d315b 58%,#111827)',desc:'Peter Parker tenta equilibrar a vida escolar com a responsabilidade de ser um herói.',url:MARKET},
+    {id:'diehard',title:'Duro de Matar 4.0',year:'2007',genre:'acao',kind:'Ação · Suspense',source:'Mercado Play',art:'linear-gradient(135deg,#313a48,#171d26 52%,#7f1d1d)',desc:'John McClane enfrenta uma ameaça digital que coloca os sistemas dos Estados Unidos em risco.',url:MARKET},
+    {id:'wwz',title:'Guerra Mundial Z',year:'2013',genre:'acao',kind:'Ação · Terror',source:'Mercado Play',art:'linear-gradient(135deg,#1c2936,#57616b 48%,#15191f)',desc:'Um ex-investigador das Nações Unidas tenta conter uma pandemia que transforma pessoas em criaturas violentas.',url:MARKET},
+    {id:'norbit',title:'Norbit',year:'2007',genre:'comedia',kind:'Comédia',source:'Mercado Play',art:'linear-gradient(135deg,#59412d,#a45a39 50%,#241a20)',desc:'A vida de Norbit muda quando um antigo amor reaparece.',url:MARKET},
+    {id:'terminator',title:'O Exterminador do Futuro: Gênesis',year:'2015',genre:'acao',kind:'Ação · Ficção científica',source:'Mercado Play',art:'linear-gradient(135deg,#29313c,#7e222a 53%,#101318)',desc:'Uma viagem no tempo altera o passado e muda o destino da resistência humana.',url:MARKET},
+    {id:'barnyard',title:'O Segredo dos Animais',year:'2006',genre:'aventura',kind:'Animação · Comédia',source:'Mercado Play',art:'linear-gradient(135deg,#4a6e3d,#a27b37 54%,#1e3227)',desc:'Os animais de uma fazenda vivem aventuras quando os humanos não estão por perto.',url:MARKET}
+  ];
+  const brazil=[
+    {id:'homemcopiava',title:'O Homem que Copiava',year:'2003',genre:'brasil',kind:'Comédia · Brasil',source:'Itaú Cultural Play',art:'linear-gradient(135deg,#183c59,#7d4e36 55%,#172a3a)',desc:'Um jovem operador de fotocopiadora se envolve em um plano para mudar sua vida. Consulte o catálogo gratuito da Itaú Cultural Play.',url:'https://www.itauculturalplay.com.br/content/collections/6a0da7ab2ece67b5bdf63a51'},
+    {id:'cabramarcado',title:'Cabra Marcado para Morrer',year:'1984',genre:'brasil',kind:'Documentário · Brasil',source:'Itaú Cultural Play',art:'linear-gradient(135deg,#4c4431,#9c8b5b 50%,#1c2522)',desc:'Clássico do documentário brasileiro de Eduardo Coutinho, listado no catálogo da Itaú Cultural Play.',url:'https://www.itauculturalplay.com.br/content/collections/6a0da7ab2ece67b5bdf63a51'},
+    {id:'cafecanela',title:'Café com Canela',year:'2017',genre:'brasil',kind:'Drama · Brasil',source:'Itaú Cultural Play',art:'linear-gradient(135deg,#3b1f2b,#bb744a 55%,#1b2730)',desc:'Drama brasileiro de Ary Rosa e Glenda Nicácio, listado no catálogo da Itaú Cultural Play.',url:'https://www.itauculturalplay.com.br/content/collections/6a0da7ab2ece67b5bdf63a51'},
+    {id:'macunaima',title:'Macunaíma',year:'1969',genre:'brasil',kind:'Clássico · Brasil',source:'Itaú Cultural Play',art:'linear-gradient(135deg,#14532d,#b45309 48%,#27272a)',desc:'Adaptação cinematográfica de um dos grandes personagens da literatura brasileira, listada no catálogo da Itaú Cultural Play.',url:'https://www.itauculturalplay.com.br/content/collections/6a0da7ab2ece67b5bdf63a51'},
+    {id:'hojevoltar',title:'Hoje Eu Quero Voltar Sozinho',year:'2014',genre:'brasil',kind:'Drama · Romance',source:'Itaú Cultural Play',art:'linear-gradient(135deg,#23445b,#6c9aa8 55%,#25233c)',desc:'Longa brasileiro de Daniel Ribeiro, listado no catálogo da Itaú Cultural Play.',url:'https://www.itauculturalplay.com.br/content/collections/6a0da7ab2ece67b5bdf63a51'}
+  ];
+  const seriesTitles=[
+    {id:'fantasmas',title:'Fantasmas',year:'Série · 1 temporada',genre:'series',kind:'Comédia · Fantasia',source:'Plex',ribbon:'Grátis',art:'linear-gradient(135deg,#4338ca,#9333ea 52%,#111827)',desc:'Série listada na coleção gratuita do Plex. A disponibilidade pode variar conforme o catálogo regional.',url:'https://watch.plex.tv/pt-BR/on-demand'},
+    {id:'fbifiles',title:'The FBI Files',year:'Série · 7 temporadas',genre:'series',kind:'Documentário · Crime',source:'Plex',ribbon:'Grátis',art:'linear-gradient(135deg,#172554,#475569 52%,#111827)',desc:'Série documental listada na coleção gratuita do Plex. Confira a disponibilidade no catálogo brasileiro.',url:'https://watch.plex.tv/pt-BR/on-demand'},
+    {id:'znation',title:'Z Nation',year:'Série · 5 temporadas',genre:'series',kind:'Ação · Terror',source:'Plex',ribbon:'Grátis',art:'linear-gradient(135deg,#14532d,#64748b 52%,#111827)',desc:'Série de ação e zumbis listada na coleção gratuita do Plex. Confira a disponibilidade regional.',url:'https://watch.plex.tv/pt-BR/on-demand'},
+    {id:'anjosdalei',title:'Anjos da Lei',year:'Série · 5 temporadas',genre:'series',kind:'Ação · Comédia policial',source:'Plex',ribbon:'Grátis',art:'linear-gradient(135deg,#1e3a8a,#0f766e 52%,#111827)',desc:'Série listada na coleção gratuita do Plex. Confira a disponibilidade regional.',url:'https://watch.plex.tv/pt-BR/on-demand'},
+    {id:'icarly',title:'iCarly',year:'Série',genre:'series',kind:'Comédia · Jovem',source:'Pluto TV',ribbon:'Grátis',art:'linear-gradient(135deg,#9d174d,#7c3aed 52%,#111827)',desc:'Série indicada na área gratuita de conteúdo infantil e jovem da Pluto TV.',url:'https://pluto.tv/br'},
+    {id:'henrydanger',title:'Henry Danger',year:'Série',genre:'series',kind:'Comédia · Aventura',source:'Pluto TV',ribbon:'Grátis',art:'linear-gradient(135deg,#075985,#b45309 52%,#111827)',desc:'Série indicada na área gratuita de conteúdo infantil e jovem da Pluto TV.',url:'https://pluto.tv/br'},
+    {id:'bobesponja',title:'Bob Esponja Calça Quadrada',year:'Série',genre:'series',kind:'Animação · Comédia',source:'Pluto TV',ribbon:'Grátis',art:'linear-gradient(135deg,#a16207,#0e7490 52%,#111827)',desc:'Animação indicada na área gratuita de conteúdo infantil da Pluto TV.',url:'https://pluto.tv/br'},
+    {id:'thundermans',title:'Os Thundermans',year:'Série',genre:'series',kind:'Comédia · Família',source:'Pluto TV',ribbon:'Grátis',art:'linear-gradient(135deg,#7e22ce,#1d4ed8 52%,#111827)',desc:'Série indicada na área gratuita de conteúdo infantil e jovem da Pluto TV.',url:'https://pluto.tv/br'}
+  ];
+  const services=[
+    {name:'Mercado Play',abbr:'MP',logo:'#1268d5',type:'Filmes e séries',info:'Área oficial com títulos marcados “Assistir grátis”. O catálogo mistura opções grátis e pagas; confira o selo antes de começar.',meta:'Pode exigir conta Mercado Livre · anúncios',url:MARKET},
+    {name:'Pluto TV',abbr:'P',logo:'#5b21b6',type:'Filmes, séries e canais ao vivo',info:'Streaming gratuito com canais ao vivo e conteúdo sob demanda, sustentado por anúncios.',meta:'Sem mensalidade · anúncios',url:'https://pluto.tv/br'},
+    {name:'Plex',abbr:'PLEX',logo:'#d97706',type:'Filmes e séries sob demanda',info:'Catálogo gratuito de filmes e séries. A disponibilidade varia por país e o conteúdo grátis pode ter anúncios.',meta:'Sem assinatura para a área grátis · anúncios',url:'https://watch.plex.tv/pt-BR/on-demand'},
+    {name:'Tela Brasil',abbr:'TB',logo:'#0f766e',type:'Cinema brasileiro',info:'Plataforma pública do Ministério da Cultura com mais de 550 obras audiovisuais brasileiras. Acesso gratuito com conta gov.br.',meta:'Login gov.br · sem mensalidade',url:'https://telabrasil.cultura.gov.br/'},
+    {name:'Spcine Play',abbr:'SP',logo:'#1d4ed8',type:'Cinema brasileiro',info:'Plataforma pública com filmes e séries gratuitos, incluindo obras e mostras de cinema brasileiro. Cadastro gratuito.',meta:'Cadastro gratuito · sem mensalidade',url:'https://www.spcineplay.com.br/'},
+    {name:'Itaú Cultural Play',abbr:'IC',logo:'#b45309',type:'Filmes, séries e festivais',info:'Catálogo gratuito de cinema brasileiro, documentários, curtas e séries. Requer cadastro; a plataforma é voltada a residentes no Brasil maiores de 18 anos.',meta:'Cadastro gratuito · sem mensalidade',url:'https://www.itauculturalplay.com.br/browser'},
+    {name:'EBC Play / TV Brasil',abbr:'EBC',logo:'#166534',type:'Produções, programas e TV ao vivo',info:'Conteúdos da TV Brasil para assistir sob demanda e programação ao vivo, oferecidos gratuitamente pela Empresa Brasil de Comunicação.',meta:'Gratuito · navegador e aplicativo',url:'https://play.ebc.com.br/'},
+    {name:'CultSP Play',abbr:'CSP',logo:'#9f1239',type:'Conteúdo cultural',info:'Plataforma cultural gratuita com filmes, séries e conteúdos audiovisuais, disponível pela web e em aplicativos.',meta:'Sem mensalidade · catálogo cultural',url:'https://cultspplay.com.br/'}
+  ];
+  const $=id=>document.getElementById(id);let search='',filter='todos',toastTimer;let saved=readSaved();
+  function readSaved(){try{return new Set(JSON.parse(localStorage.getItem('telaplus_saved')||'[]'))}catch{return new Set()}}
+  function saveSaved(){try{localStorage.setItem('telaplus_saved',JSON.stringify([...saved]))}catch{toast('Não foi possível salvar neste navegador.')}}
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function allTitles(){return [...movies,...brazil]}
+  function card(item){const isSaved=saved.has(item.id);const article=document.createElement('article');article.className='card';article.innerHTML=`<div class="poster" style="--art:${item.art}"><span class="ribbon ${item.genre==='brasil'?'brazil':item.genre==='series'?'check':''}">${item.ribbon||(item.genre==='brasil'?'Cinema nacional':'Catálogo grátis')}</span><button class="fav ${isSaved?'saved':''}" type="button" aria-label="${isSaved?'Remover':'Salvar'} ${esc(item.title)}">${isSaved?'♥':'＋'}</button><div class="poster-copy"><div class="poster-kicker">${esc(item.source)}</div><div class="poster-title">${esc(item.title)}</div><div class="poster-year">${esc(item.year)}</div></div></div><div class="card-info"><h3 class="card-title" title="${esc(item.title)}">${esc(item.title)}</h3><div class="card-meta"><span>${esc(item.year)}</span><span>·</span><span>${esc(item.kind)}</span></div><div class="card-actions"><button class="watch" type="button">Ver opções ↗</button><button class="more" type="button">Detalhes</button></div></div>`;
+    article.querySelector('.fav').addEventListener('click',()=>toggle(item));article.querySelector('.watch').addEventListener('click',()=>openJust(item.title));article.querySelector('.more').addEventListener('click',()=>openModal(item));return article}
+  function render(){
+    const list=movies.filter(x=>(filter==='todos'||filter==='salvos'||x.genre===filter)&&(!search||(x.title+' '+x.kind+' '+x.source).toLowerCase().includes(search))&&(filter!=='salvos'||saved.has(x.id)));
+    $('movieGrid').replaceChildren(...list.map(card));$('movieEmpty').style.display=list.length?'none':'block';
+    const br=brazil.filter(x=>(!search||(x.title+' '+x.kind).toLowerCase().includes(search)));$('brazilGrid').replaceChildren(...br.map(card));
+    const st=seriesTitles.filter(x=>(!search||(x.title+' '+x.kind).toLowerCase().includes(search)));$('seriesGrid').replaceChildren(...st.map(card));
+    const sv=[...allTitles(),...seriesTitles].filter(x=>saved.has(x.id));$('savedGrid').replaceChildren(...sv.map(card));$('savedEmpty').style.display=sv.length?'none':'block';
+    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));
+  }
+  function toggle(item){if(saved.has(item.id)){saved.delete(item.id);toast('Removido da sua lista.')}else{saved.add(item.id);toast('Adicionado à sua lista.')}saveSaved();render()}
+  function openJust(title){window.open(JUST+encodeURIComponent(title),'_blank','noopener')}
+  function openModal(item){$('modalHero').style.setProperty('--art',item.art);$('modalTitle').textContent=item.title;$('modalBody').innerHTML=`<div class="card-meta"><span>${esc(item.year)}</span><span>·</span><span>${esc(item.kind)}</span><span>·</span><span>${esc(item.source)}</span></div><p>${esc(item.desc)}</p><p><strong>Como assistir:</strong> abra o catálogo oficial indicado e confirme se o título continua marcado como gratuito. Ou pesquise em outros serviços para comparar as opções legais disponíveis no Brasil.</p><a class="btn btn-red" href="${esc(item.url)}" target="_blank" rel="noopener">Abrir fonte oficial ↗</a><button class="btn btn-dark" id="modalJust">Ver em outros serviços ↗</button><button class="btn btn-outline" id="modalSave">${saved.has(item.id)?'♥ Na minha lista':'＋ Salvar na minha lista'}</button>`;$('modalBg').classList.add('open');$('modalJust').addEventListener('click',()=>openJust(item.title));$('modalSave').addEventListener('click',()=>{toggle(item);$('modalSave').textContent=saved.has(item.id)?'♥ Na minha lista':'＋ Salvar na minha lista'})}
+  $('modalClose').addEventListener('click',()=> $('modalBg').classList.remove('open'));$('modalBg').addEventListener('click',e=>{if(e.target===$('modalBg'))$('modalBg').classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modalBg').classList.remove('open')});
+  function renderServices(){const grid=$('serviceGrid');grid.innerHTML='';services.forEach(s=>{const el=document.createElement('article');el.className='service';el.innerHTML=`<div class="service-top"><div class="service-logo" style="--logo:${s.logo}">${esc(s.abbr)}</div><span class="tag">Grátis</span></div><h3>${esc(s.name)}</h3><div class="service-meta">${esc(s.type)}</div><p>${esc(s.info)}</p><div class="service-meta">${esc(s.meta)}</div><a href="${esc(s.url)}" target="_blank" rel="noopener">Abrir plataforma <span>↗</span></a>`;grid.appendChild(el)})}
+  function go(where){const el=$(where);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('[data-go]').forEach(b=>b.classList.toggle('active',b.dataset.go===where))}
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+  document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
+  function setSearch(v){search=v.trim().toLowerCase();render()}
+  $('quickSearch').addEventListener('input',e=>setSearch(e.target.value));$('quickSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=e.target.value.trim();if(v)openJust(v)}});
+  function doWhere(){const v=$('whereSearch').value.trim();if(!v){$('whereSearch').focus();toast('Digite o nome de um filme ou série.');return}openJust(v)}$('whereButton').addEventListener('click',doWhere);$('whereSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doWhere()});
+  window.addEventListener('scroll',()=>$('topbar').classList.toggle('solid',window.scrollY>30),{passive:true});
+  renderServices();render();
+})();
+</script>
 </body>
 </html>
