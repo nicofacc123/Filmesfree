@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090909" />
+  <meta name="description" content="TELA+ — descubra filmes, séries e obras audiovisuais de acervos abertos." />
+  <title>TELA+ | Cinema para descobrir</title>
+  <link rel="preconnect" href="https://archive.org" />
+  <link rel="preconnect" href="https://archive.org" crossorigin />
+  <style>
+    :root {
+      --bg: #090909;
+      --panel: #151515;
+      --panel-2: #202020;
+      --text: #f6f6f6;
+      --muted: #aaa;
+      --red: #e50914;
+      --red-dark: #b20710;
+      --line: rgba(255,255,255,.12);
+      --radius: 12px;
+      --max: 1440px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .topbar {
+      position: fixed; inset: 0 0 auto; z-index: 20;
+      height: 72px; display: flex; align-items: center;
+      padding: 0 clamp(18px, 4vw, 64px); gap: 34px;
+      background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.48));
+      transition: background .25s, box-shadow .25s;
+    }
+    .topbar.scrolled { background: rgba(8,8,8,.96); box-shadow: 0 8px 28px rgba(0,0,0,.24); }
+    .brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; flex: 0 0 auto; }
+    .brand-mark {
+      width: 29px; height: 29px; display: grid; place-items: center;
+      background: var(--red); border-radius: 7px; font-weight: 950; font-size: 17px;
+      transform: skew(-8deg); box-shadow: 0 4px 18px rgba(229,9,20,.3);
+    }
+    .brand-name { font-size: 23px; letter-spacing: 2px; font-weight: 900; }
+    .brand-name span { color: var(--red); }
+    .nav { display: flex; align-items: center; gap: 24px; color: #ddd; font-size: 14px; }
+    .nav button { background: none; border: 0; color: inherit; padding: 8px 0; transition: color .2s; }
+    .nav button:hover, .nav button.active { color: white; font-weight: 750; }
+    .nav button.active::after { content:""; display:block; height:2px; width:100%; background:var(--red); margin-top:5px; }
+    .top-actions { margin-left: auto; display:flex; align-items:center; gap:14px; }
+    .search-wrap { position:relative; }
+    .search-wrap input {
+      width: clamp(150px, 20vw, 245px); height: 38px; padding: 0 40px 0 13px;
+      border: 1px solid rgba(255,255,255,.28); border-radius: 6px;
+      color: white; background: rgba(0,0,0,.56); outline: none; transition: width .2s, border .2s;
+    }
+    .search-wrap input:focus { width: clamp(180px, 24vw, 300px); border-color: white; }
+    .search-icon { position:absolute; right:12px; top:8px; opacity:.8; pointer-events:none; }
+    .avatar { width:34px; height:34px; border-radius:8px; display:grid; place-items:center; background:linear-gradient(135deg,#a11,#303030); font-weight:800; font-size:13px; }
+    .hero {
+      min-height: 660px; height: min(80vh, 780px); position:relative; display:flex; align-items:center;
+      overflow:hidden; padding: 115px clamp(22px, 6vw, 92px) 92px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.78) 38%, rgba(0,0,0,.18) 75%, rgba(0,0,0,.35) 100%),
+        linear-gradient(0deg, #090909 0%, transparent 33%),
+        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=2200&q=85') center 42%/cover no-repeat;
+    }
+    .hero::before {
+      content:""; position:absolute; right:7%; top:17%; width:min(31vw,420px); aspect-ratio: .72;
+      border:1px solid rgba(255,255,255,.17); border-radius: 18px;
+      background: linear-gradient(155deg, rgba(230,9,20,.28), transparent 40%),
+        radial-gradient(circle at 65% 28%, rgba(255,255,255,.24), transparent 22%),
+        linear-gradient(145deg, rgba(30,30,30,.3), rgba(0,0,0,.85));
+      box-shadow: 0 35px 90px rgba(0,0,0,.5), inset 0 0 80px rgba(255,255,255,.04);
+      transform: perspective(900px) rotateY(-13deg) rotateZ(3deg);
+      mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    }
+    .hero::after { content:"TELA+"; position:absolute; right:10.2%; top:35%; font-size:clamp(30px,5vw,72px); letter-spacing:5px; font-weight:950; color:rgba(255,255,255,.10); transform:rotate(-8deg); }
+    .hero-content { position:relative; z-index:1; max-width: 640px; }
+    .eyebrow { display:flex; align-items:center; gap:10px; color:#eee; font-size:12px; letter-spacing:2.5px; font-weight:800; text-transform:uppercase; }
+    .eyebrow .dot { width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 14px var(--red); }
+    h1 { font-size:clamp(42px, 6.4vw, 82px); line-height:.99; letter-spacing:-3px; margin:20px 0 20px; max-width:700px; }
+    h1 span { color:var(--red); }
+    .hero-copy { color:#d4d4d4; font-size:clamp(15px,1.4vw,18px); max-width:540px; margin:0 0 27px; }
+    .hero-buttons { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .btn { border:0; border-radius:5px; padding:12px 20px; min-height:46px; font-weight:800; display:inline-flex; gap:10px; align-items:center; justify-content:center; transition:transform .18s, background .18s; }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-primary { background:#f4f4f4; color:#111; }
+    .btn-primary:hover { background:#d9d9d9; }
+    .btn-secondary { background:rgba(109,109,110,.58); color:white; backdrop-filter:blur(8px); }
+    .btn-secondary:hover { background:rgba(109,109,110,.8); }
+    .main { max-width:var(--max); margin:-38px auto 0; padding:0 clamp(18px,4vw,64px) 80px; position:relative; z-index:2; }
+    .notice {
+      border:1px solid rgba(255,255,255,.12); border-left:3px solid var(--red); border-radius:8px;
+      background:linear-gradient(100deg,rgba(35,35,35,.96),rgba(17,17,17,.93));
+      padding:13px 16px; margin-bottom:32px; color:#ccc; font-size:13px; display:flex; gap:12px; align-items:flex-start;
+    }
+    .notice strong { color:#fff; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:27px 0 16px; }
+    .section-head h2 { font-size:clamp(20px,2vw,26px); margin:0; letter-spacing:-.5px; }
+    .section-head p { color:var(--muted); margin:4px 0 0; font-size:13px; }
+    .section-tools { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { border:1px solid rgba(255,255,255,.2); border-radius:99px; background:transparent; color:#ddd; padding:7px 13px; font-size:12px; }
+    .chip:hover, .chip.selected { border-color:var(--red); background:rgba(229,9,20,.14); color:white; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:12px 0 20px; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; }
+    .sort-select { color:#ddd; background:#171717; border:1px solid #444; border-radius:6px; padding:8px 10px; }
+    .catalog-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:17px; }
+    .movie-card { position:relative; min-width:0; border-radius:9px; overflow:hidden; background:#171717; border:1px solid rgba(255,255,255,.07); transition:transform .22s, box-shadow .22s; }
+    .movie-card:hover { transform:translateY(-5px) scale(1.015); box-shadow:0 16px 35px rgba(0,0,0,.48); z-index:2; }
+    .poster { position:relative; aspect-ratio: .72; overflow:hidden; background:
+      radial-gradient(circle at 70% 25%,rgba(229,9,20,.46),transparent 28%),
+      linear-gradient(145deg,#363636,#111 60%,#4a0b0e); }
+    .poster::after { content:""; position:absolute; inset:35% 0 0; background:linear-gradient(transparent,rgba(0,0,0,.78)); pointer-events:none; }
+    .poster img { width:100%; height:100%; object-fit:cover; display:block; opacity:.84; transition:transform .4s,opacity .3s; }
+    .movie-card:hover .poster img { transform:scale(1.06); opacity:1; }
+    .poster-fallback { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:15px; z-index:1; }
+    .poster-fallback .mini-brand { color:rgba(255,255,255,.65); font-size:9px; letter-spacing:3px; font-weight:900; margin-bottom:7px; }
+    .poster-fallback .poster-title { font-size:clamp(15px,1.6vw,22px); line-height:1.05; font-weight:950; letter-spacing:-.5px; text-transform:uppercase; text-shadow:0 2px 10px #000; }
+    .poster-fallback .poster-year { margin-top:7px; color:#ddd; font-size:11px; }
+    .license-badge { position:absolute; top:9px; left:9px; z-index:2; font-size:9px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:5px 7px; border-radius:4px; background:rgba(0,0,0,.76); color:#e8e8e8; backdrop-filter:blur(6px); }
+    .favorite { position:absolute; top:8px; right:8px; z-index:3; border:1px solid rgba(255,255,255,.28); background:rgba(0,0,0,.68); color:white; width:31px; height:31px; border-radius:50%; font-size:17px; line-height:1; }
+    .favorite.saved { color:#fff; background:var(--red); border-color:var(--red); }
+    .card-info { padding:11px 11px 13px; }
+    .card-title { font-size:14px; font-weight:800; line-height:1.25; margin:0 0 5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .card-meta { color:#aaa; font-size:11px; display:flex; gap:7px; align-items:center; }
+    .card-actions { display:flex; gap:7px; margin-top:11px; }
+    .card-actions button { border:0; border-radius:4px; font-size:11px; font-weight:800; padding:7px 9px; }
+    .play-small { background:#f1f1f1; color:#111; flex:1; }
+    .details-small { background:#343434; color:#eee; }
+    .state-panel { min-height:200px; border:1px dashed rgba(255,255,255,.18); border-radius:12px; display:grid; place-items:center; text-align:center; padding:32px; color:#aaa; }
+    .state-panel h3 { color:#f4f4f4; margin:0 0 7px; font-size:18px; }
+    .state-panel p { margin:0 auto 15px; max-width:520px; font-size:13px; }
+    .spinner { width:28px; height:28px; border:3px solid #444; border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 13px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .footer { border-top:1px solid var(--line); padding:28px 0 8px; color:#8e8e8e; font-size:12px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .footer a { color:#bbb; text-decoration:none; }
+    .footer a:hover { color:white; }
+    .modal-backdrop { position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.82); display:none; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(7px); }
+    .modal-backdrop.open { display:flex; }
+    .modal { width:min(960px,100%); max-height:92vh; overflow:auto; background:#171717; border:1px solid rgba(255,255,255,.15); border-radius:13px; box-shadow:0 30px 90px rgba(0,0,0,.6); position:relative; }
+    .modal-close { position:sticky; top:12px; margin:12px 12px -44px auto; z-index:5; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(0,0,0,.72); color:white; font-size:20px; }
+    .player-frame { width:100%; aspect-ratio:16/9; border:0; display:block; background:#000; }
+    .modal-body { padding:22px 25px 26px; }
+    .modal-body h2 { margin:0 0 8px; font-size:26px; }
+    .modal-body p { color:#c2c2c2; margin:8px 0 16px; font-size:14px; }
+    .meta-line { color:#aaa; font-size:12px; display:flex; gap:10px; flex-wrap:wrap; }
+    .source-line { font-size:12px; color:#aaa; margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+    .source-line a { color:#fff; }
+    .toast { position:fixed; z-index:80; left:50%; bottom:22px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:#f1f1f1; color:#111; padding:10px 15px; border-radius:7px; box-shadow:0 8px 30px #0008; font-size:13px; font-weight:700; transition:.25s; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:1050px) { .catalog-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .hero::before,.hero::after { right:3%; opacity:.65; } }
+    @media (max-width:760px) {
+      .topbar { height:64px; gap:16px; padding:0 16px; }
+      .brand-name { font-size:19px; }
+      .nav { gap:13px; font-size:12px; }
+      .nav button:nth-child(2), .nav button:nth-child(3) { display:none; }
+      .search-wrap input { width:40px; padding:0; border-color:transparent; background:transparent; color:transparent; }
+      .search-wrap input:focus { position:absolute; right:-2px; top:-18px; width:min(70vw,280px); padding:0 38px 0 12px; border-color:white; background:#111; color:white; }
+      .search-icon { right:10px; top:8px; }
+      .avatar { display:none; }
+      .hero { height:610px; min-height:580px; padding:120px 22px 80px; background-position:58% center; }
+      .hero::before,.hero::after { display:none; }
+      h1 { letter-spacing:-2px; }
+      .main { padding:0 16px 55px; margin-top:-24px; }
+      .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+      .card-info { padding:9px; }
+      .card-title { font-size:12px; }
+      .card-actions button { font-size:10px; padding:7px; }
+      .notice { font-size:12px; }
+      .section-head { align-items:flex-start; flex-direction:column; }
+      .footer { flex-direction:column; }
+    }
+    @media (min-width:761px) and (max-width:900px) { .catalog-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#inicio" aria-label="TELA+ início">
+      <span class="brand-mark">T</span><span class="brand-name">TELA<span>+</span></span>
+    </a>
+    <nav class="nav" aria-label="Navegação principal">
+      <button class="active" data-nav="home">Início</button>
+      <button data-nav="movie">Filmes</button>
+      <button data-nav="series">Séries</button>
+      <button data-nav="saved">Minha lista</button>
+    </nav>
+    <div class="top-actions">
+      <div class="search-wrap">
+        <input id="searchInput" type="search" placeholder="Buscar no acervo..." aria-label="Buscar filmes e séries" />
+        <span class="search-icon" aria-hidden="true">⌕</span>
+      </div>
+      <div class="avatar" title="Seu perfil">T+</div>
+    </div>
+  </header>
+
+  <section class="hero" id="inicio">
+    <div class="hero-content">
+      <div class="eyebrow"><span class="dot"></span> Seu próximo filme começa aqui</div>
+      <h1>Grandes histórias.<br /><span>Novas descobertas.</span></h1>
+      <p class="hero-copy">Explore um catálogo conectado a acervos audiovisuais abertos. Descubra clássicos, obras independentes e episódios que podem ser exibidos diretamente da fonte.</p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" id="exploreBtn"><span>▶</span> Explorar catálogo</button>
+        <button class="btn btn-secondary" id="aboutBtn"><span>ⓘ</span> Como funciona</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="main" id="catalogo">
+    <div class="notice">
+      <span aria-hidden="true">ⓘ</span>
+      <div><strong>Catálogo de acervo aberto.</strong> Os vídeos são reproduzidos no player do Internet Archive; este site não hospeda nem copia os arquivos. A licença e a legislação aplicável devem ser conferidas antes de qualquer uso ou redistribuição.</div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <h2 id="sectionTitle">Descubra algo novo</h2>
+        <p id="sectionSubtitle">Obras audiovisuais com licença aberta ou indicação de domínio público.</p>
+      </div>
+      <div class="section-tools">
+        <button class="chip selected" data-quick="all">Todos</button>
+        <button class="chip" data-quick="public">Domínio público</button>
+        <button class="chip" data-quick="cc">Creative Commons</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="filters">
+        <button class="chip selected" data-filter="all">Tudo</button>
+        <button class="chip" data-filter="movie">Filmes</button>
+        <button class="chip" data-filter="series">Séries / episódios</button>
+      </div>
+      <select class="sort-select" id="sortSelect" aria-label="Ordenar catálogo">
+        <option value="popular">Mais acessados no acervo</option>
+        <option value="new">Mais recentes</option>
+        <option value="old">Mais antigos</option>
+        <option value="az">Nome: A–Z</option>
+      </select>
+    </div>
+
+    <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
+    <div id="statePanel" class="state-panel">
+      <div>
+        <div class="spinner"></div>
+        <h3>Conectando ao acervo...</h3>
+        <p>Buscando filmes e vídeos com licenças abertas no Internet Archive.</p>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div>© 2026 TELA+. Projeto independente de descoberta audiovisual.</div>
+      <div><a href="https://archive.org/" target="_blank" rel="noopener">Internet Archive</a> · <a href="https://creativecommons.org/share-your-work/cclicenses/" target="_blank" rel="noopener">Licenças Creative Commons</a></div>
+    </footer>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="Detalhes do título">
+    <div class="modal" id="modalContent">
+      <button class="modal-close" id="closeModal" aria-label="Fechar">×</button>
+      <div id="modalInner"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const API = 'https://archive.org/advancedsearch.php';
+      const LICENSE_QUERY = [
+        'licenseurl:"http://creativecommons.org/publicdomain/mark/1.0/"',
+        'licenseurl:"https://creativecommons.org/publicdomain/mark/1.0/"',
+        'licenseurl:"http://creativecommons.org/publicdomain/zero/1.0/"',
+        'licenseurl:"https://creativecommons.org/publicdomain/zero/1.0/"',
+        'licenseurl:"http://creativecommons.org/licenses/by/4.0/"',
+        'licenseurl:"https://creativecommons.org/licenses/by/4.0/"',
+        'licenseurl:"http://creativecommons.org/licenses/by-sa/4.0/"',
+        'licenseurl:"https://creativecommons.org/licenses/by-sa/4.0/"',
+        'licenseurl:"http://creativecommons.org/licenses/by/3.0/"',
+        'licenseurl:"https://creativecommons.org/licenses/by/3.0/"',
+        'licenseurl:"http://creativecommons.org/licenses/by-sa/3.0/"',
+        'licenseurl:"https://creativecommons.org/licenses/by-sa/3.0/"'
+      ];
+      const ALLOWED_LICENSE = /(publicdomain\/(mark|zero)\/1\.0|licenses\/by(-sa)?\/(3\.0|4\.0))/i;
+      const state = { all: [], visible: [], filter: 'all', quick: 'all', page: 1, query: '', section: 'home' };
+      const $ = (id) => document.getElementById(id);
+      const grid = $('catalogGrid');
+      const panel = $('statePanel');
+      let toastTimer;
+      let searchTimer;
+      let requestController;
+      let saved = readSaved();
+
+      function readSaved() {
+        try { return new Set(JSON.parse(localStorage.getItem('tela_saved') || '[]')); }
+        catch { return new Set(); }
+      }
+      function persistSaved() {
+        try { localStorage.setItem('tela_saved', JSON.stringify([...saved])); }
+        catch { showToast('Não foi possível salvar neste navegador.'); }
+      }
+      function showToast(message) {
+        const el = $('toast'); el.textContent = message; el.classList.add('show');
+        clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
+      }
+      function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+      function safeIdentifier(value) {
+        const id = String(value || '');
+        return /^[a-zA-Z0-9._-]{1,180}$/.test(id) ? id : '';
+      }
+      function licenseKind(url) {
+        const u = String(url || '');
+        if (/publicdomain\/mark/i.test(u)) return 'Domínio público';
+        if (/publicdomain\/zero/i.test(u)) return 'CC0';
+        if (/by-sa/i.test(u)) return 'CC BY-SA';
+        if (/licenses\/by/i.test(u)) return 'CC BY';
+        return 'Licença a conferir';
+      }
+      function isSeries(item) {
+        const text = [item.title, item.description, item.subject].flat().join(' ').toLowerCase();
+        return /\b(series|serial|season|episode|episódio|temporada|s\d{1,2}e\d{1,2}|episode\s*\d+)\b/.test(text);
+      }
+      function normalize(doc) {
+        const id = safeIdentifier(doc.identifier);
+        const license = Array.isArray(doc.licenseurl) ? doc.licenseurl[0] : doc.licenseurl;
+        if (!id || !license || !ALLOWED_LICENSE.test(license)) return null;
+        return {
+          id,
+          title: String(doc.title || id.replace(/[_-]/g, ' ')),
+          year: String(doc.year || doc.date || '').slice(0,4),
+          creator: Array.isArray(doc.creator) ? doc.creator.join(', ') : String(doc.creator || ''),
+          description: Array.isArray(doc.description) ? doc.description.join(' ') : String(doc.description || ''),
+          subject: Array.isArray(doc.subject) ? doc.subject.join(' ') : String(doc.subject || ''),
+          license,
+          downloads: Number(doc.downloads || 0),
+          type: isSeries(doc) ? 'series' : 'movie'
+        };
+      }
+      function makeQuery(searchText = '') {
+        const rights = '(' + LICENSE_QUERY.join(' OR ') + ')';
+        if (!searchText.trim()) return 'mediatype:movies AND ' + rights;
+        const safe = searchText.trim().replace(/[+\-!(){}\[\]^"~*?:\\/|&]/g, ' ').replace(/\s+/g, ' ').slice(0,90);
+        return 'mediatype:movies AND (title:("' + safe + '") OR description:("' + safe + '") OR subject:("' + safe + '")) AND ' + rights;
+      }
+      function showLoading(message = 'Consultando o Internet Archive...') {
+        grid.innerHTML = '';
+        panel.style.display = 'grid';
+        panel.innerHTML = '<div><div class="spinner"></div><h3>' + escapeHTML(message) + '</h3><p>Os resultados são carregados diretamente do acervo aberto.</p></div>';
+      }
+      function showEmpty(title, message, directQuery) {
+        panel.style.display = 'grid';
+        const q = encodeURIComponent(directQuery || makeQuery(state.query));
+        panel.innerHTML = '<div><h3>' + escapeHTML(title) + '</h3><p>' + escapeHTML(message) + '</p><a class="btn btn-secondary" style="text-decoration:none" href="https://archive.org/advancedsearch.php?q=' + q + '&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=licenseurl&rows=24&page=1&output=json" target="_blank" rel="noopener">Abrir pesquisa no Internet Archive ↗</a></div>';
+      }
+      async function loadCatalog(searchText = '', opts = {}) {
+        if (requestController) requestController.abort();
+        requestController = new AbortController();
+        state.query = searchText;
+        if (!opts.keepFilter) state.filter = state.section === 'movie' ? 'movie' : state.section === 'series' ? 'series' : 'all';
+        showLoading(searchText ? 'Procurando por “' + searchText + '”' : 'Conectando ao acervo...');
+        const params = new URLSearchParams();
+        params.set('q', makeQuery(searchText));
+        params.append('fl[]', 'identifier'); params.append('fl[]', 'title');
+        params.append('fl[]', 'year'); params.append('fl[]', 'date');
+        params.append('fl[]', 'creator'); params.append('fl[]', 'description');
+        params.append('fl[]', 'subject'); params.append('fl[]', 'licenseurl');
+        params.append('fl[]', 'downloads');
+        params.set('rows', '60'); params.set('page', '1'); params.set('output', 'json');
+        params.append('sort[]', 'downloads desc');
+        try {
+          const response = await fetch(API + '?' + params.toString(), { signal: requestController.signal, headers: { 'Accept': 'application/json' } });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const payload = await response.json();
+          const docs = payload && payload.response && Array.isArray(payload.response.docs) ? payload.response.docs : [];
+          state.all = docs.map(normalize).filter(Boolean);
+          applyFilters();
+          if (!state.all.length) {
+            showEmpty('Nenhum título encontrado', 'Tente outro termo. O acervo pode não ter resultados com uma das licenças aceitas pelo site.', makeQuery(searchText));
+          }
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          state.all = []; state.visible = []; grid.innerHTML = '';
+          showEmpty('Não foi possível conectar ao acervo', 'Verifique sua internet. Para testar a integração, publique o site em HTTPS (por exemplo, GitHub Pages) ou abra a pesquisa diretamente no Internet Archive.', makeQuery(searchText));
+        }
+      }
+      function applyFilters() {
+        let items = [...state.all];
+        if (state.filter === 'movie') items = items.filter(x => x.type === 'movie');
+        if (state.filter === 'series') items = items.filter(x => x.type === 'series');
+        if (state.quick === 'public') items = items.filter(x => /publicdomain|zero/i.test(x.license));
+        if (state.quick === 'cc') items = items.filter(x => /licenses\/by/i.test(x.license));
+        const sort = $('sortSelect').value;
+        if (sort === 'new') items.sort((a,b) => Number(b.year || 0) - Number(a.year || 0));
+        if (sort === 'old') items.sort((a,b) => Number(a.year || 9999) - Number(b.year || 9999));
+        if (sort === 'az') items.sort((a,b) => a.title.localeCompare(b.title));
+        if (sort === 'popular') items.sort((a,b) => b.downloads - a.downloads);
+        if (state.section === 'saved') items = items.filter(x => saved.has(x.id));
+        state.visible = items;
+        renderCards(items);
+        $('sectionTitle').textContent = state.section === 'saved' ? 'Minha lista' : state.section === 'series' ? 'Séries e episódios' : state.section === 'movie' ? 'Filmes' : state.query ? 'Resultados da busca' : 'Descubra algo novo';
+        $('sectionSubtitle').textContent = state.section === 'saved' ? 'Títulos que você salvou neste navegador.' : items.length + ' título(s) disponíveis nesta seleção.';
+      }
+      function renderCards(items) {
+        grid.innerHTML = '';
+        if (!items.length) {
+          panel.style.display = 'grid';
+          panel.innerHTML = '<div><h3>' + (state.section === 'saved' ? 'Sua lista ainda está vazia' : 'Nada por aqui') + '</h3><p>' + (state.section === 'saved' ? 'Use o botão de coração nos títulos para guardá-los aqui.' : 'Mude os filtros ou tente uma busca diferente.') + '</p></div>';
+          return;
+        }
+        panel.style.display = 'none';
+        const frag = document.createDocumentFragment();
+        items.forEach(item => frag.appendChild(createCard(item)));
+        grid.appendChild(frag);
+      }
+      function createCard(item) {
+        const card = document.createElement('article'); card.className = 'movie-card';
+        const poster = document.createElement('div'); poster.className = 'poster';
+        const fallback = document.createElement('div'); fallback.className = 'poster-fallback';
+        fallback.innerHTML = '<div class="mini-brand">TELA+ ACERVO</div><div class="poster-title">' + escapeHTML(item.title) + '</div><div class="poster-year">' + escapeHTML(item.year || 'SEM DATA') + '</div>';
+        poster.appendChild(fallback);
+        const img = document.createElement('img'); img.loading = 'lazy'; img.alt = 'Capa de ' + item.title;
+        img.src = 'https://archive.org/services/img/' + encodeURIComponent(item.id);
+        img.addEventListener('load', () => { fallback.style.opacity = '.7'; }, { once:true });
+        img.addEventListener('error', () => img.remove(), { once:true });
+        poster.prepend(img);
+        const badge = document.createElement('span'); badge.className = 'license-badge'; badge.textContent = licenseKind(item.license); poster.appendChild(badge);
+        const fav = document.createElement('button'); fav.className = 'favorite' + (saved.has(item.id) ? ' saved' : ''); fav.type='button'; fav.title='Adicionar à Minha lista'; fav.setAttribute('aria-label', 'Salvar ' + item.title); fav.textContent = saved.has(item.id) ? '♥' : '＋';
+        fav.addEventListener('click', (e) => { e.stopPropagation(); toggleSaved(item); fav.classList.toggle('saved', saved.has(item.id)); fav.textContent = saved.has(item.id) ? '♥' : '＋'; });
+        poster.appendChild(fav);
+        const info = document.createElement('div'); info.className = 'card-info';
+        const title = document.createElement('h3'); title.className='card-title'; title.textContent=item.title; title.title=item.title;
+        const meta = document.createElement('div'); meta.className='card-meta'; meta.innerHTML = '<span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + (item.type === 'series' ? 'Série / episódio' : 'Filme / vídeo') + '</span>';
+        const actions = document.createElement('div'); actions.className='card-actions';
+        const play = document.createElement('button'); play.className='play-small'; play.type='button'; play.textContent='▶ Assistir'; play.addEventListener('click', () => openPlayer(item));
+        const details = document.createElement('button'); details.className='details-small'; details.type='button'; details.textContent='Detalhes'; details.addEventListener('click', () => openDetails(item));
+        actions.append(play, details); info.append(title, meta, actions); card.append(poster, info);
+        return card;
+      }
+      function toggleSaved(item) {
+        if (saved.has(item.id)) { saved.delete(item.id); showToast('Removido da Minha lista.'); }
+        else { saved.add(item.id); showToast('Adicionado à Minha lista.'); }
+        persistSaved();
+        if (state.section === 'saved') applyFilters();
+      }
+      function openModal(inner) {
+        $('modalInner').innerHTML = inner;
+        $('modalBackdrop').classList.add('open');
+        document.body.style.overflow='hidden';
+      }
+      function closeModal() {
+        $('modalBackdrop').classList.remove('open'); $('modalInner').innerHTML=''; document.body.style.overflow='';
+      }
+      function openPlayer(item) {
+        const id = safeIdentifier(item.id); if (!id) return;
+        const title = escapeHTML(item.title);
+        openModal('<iframe class="player-frame" src="https://archive.org/embed/' + encodeURIComponent(id) + '" title="' + title + '" allow="fullscreen; autoplay" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>' +
+          '<div class="modal-body"><h2>' + title + '</h2><div class="meta-line"><span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + escapeHTML(licenseKind(item.license)) + '</span></div><p>Este conteúdo está sendo reproduzido pelo player do Internet Archive. A disponibilidade e a qualidade dependem do serviço de origem.</p><div class="source-line">Fonte original: <a href="https://archive.org/details/' + encodeURIComponent(id) + '" target="_blank" rel="noopener">abrir página do título no Internet Archive ↗</a></div></div>');
+      }
+      function openDetails(item) {
+        const id=safeIdentifier(item.id); const desc=item.description || 'O acervo não forneceu uma sinopse para este título.';
+        const creator=item.creator ? '<span>Por ' + escapeHTML(item.creator) + '</span><span>•</span>' : '';
+        const license=escapeHTML(item.license);
+        openModal('<div class="modal-body" style="padding-top:62px"><div class="eyebrow"><span class="dot"></span> ' + escapeHTML(licenseKind(item.license)) + '</div><h2 style="margin-top:12px">' + escapeHTML(item.title) + '</h2><div class="meta-line">' + creator + '<span>' + escapeHTML(item.year || 'Ano não informado') + '</span><span>•</span><span>' + (item.type==='series'?'Série / episódio':'Filme / vídeo') + '</span></div><p>' + escapeHTML(desc) + '</p><div class="source-line"><strong>Licença informada pelo acervo:</strong><br><a href="' + escapeHTML(item.license) + '" target="_blank" rel="noopener">' + license + ' ↗</a><br><br><a href="https://archive.org/details/' + encodeURIComponent(id) + '" target="_blank" rel="noopener">Consultar registro original ↗</a></div><div class="hero-buttons" style="margin-top:20px"><button class="btn btn-primary" id="modalPlay">▶ Assistir</button><button class="btn btn-secondary" id="modalSave">' + (saved.has(id)?'♥ Na minha lista':'＋ Minha lista') + '</button></div></div>');
+        $('modalPlay').addEventListener('click', () => openPlayer(item));
+        $('modalSave').addEventListener('click', () => { toggleSaved(item); $('modalSave').textContent = saved.has(id) ? '♥ Na minha lista' : '＋ Minha lista'; });
+      }
+      function setSection(section) {
+        state.section=section;
+        document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav===section));
+        if (section === 'home') { state.filter='all'; state.quick='all'; if (!state.all.length) loadCatalog(''); else applyFilters(); }
+        else if (section === 'movie' || section === 'series') { state.filter=section; applyFilters(); }
+        else if (section === 'saved') { state.filter='all'; state.quick='all'; applyFilters(); }
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('selected', b.dataset.filter===state.filter));
+        document.querySelectorAll('[data-quick]').forEach(b => b.classList.toggle('selected', b.dataset.quick===state.quick));
+        $('catalogo').scrollIntoView({behavior:'smooth',block:'start'});
+      }
+      document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', () => setSection(btn.dataset.nav)));
+      document.querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => {
+        state.filter=btn.dataset.filter; state.section='home';
+        document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('selected',b===btn));
+        document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav==='home'));
+        applyFilters();
+      }));
+      document.querySelectorAll('[data-quick]').forEach(btn => btn.addEventListener('click', () => {
+        state.quick=btn.dataset.quick; document.querySelectorAll('[data-quick]').forEach(b=>b.classList.toggle('selected',b===btn)); applyFilters();
+      }));
+      $('sortSelect').addEventListener('change', applyFilters);
+      $('searchInput').addEventListener('input', e => {
+        clearTimeout(searchTimer); const value=e.target.value.trim();
+        searchTimer=setTimeout(() => { state.section='home'; state.filter='all'; document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav==='home')); loadCatalog(value); }, 550);
+      });
+      $('searchInput').addEventListener('keydown', e => { if(e.key==='Enter'){ clearTimeout(searchTimer); loadCatalog(e.target.value.trim()); } });
+      $('exploreBtn').addEventListener('click', () => $('catalogo').scrollIntoView({behavior:'smooth'}));
+      $('aboutBtn').addEventListener('click', () => openModal('<div class="modal-body" style="padding-top:62px"><div class="eyebrow"><span class="dot"></span> Sobre a plataforma</div><h2>Um catálogo conectado à origem</h2><p>O TELA+ consulta os metadados do Internet Archive para encontrar vídeos que declaram licenças abertas ou indicação de domínio público. Quando você aperta “Assistir”, o conteúdo é carregado no player oficial do próprio acervo.</p><p><strong>Importante:</strong> uma licença registrada no site de origem não substitui a verificação jurídica do material, da versão/restauração e das regras do país onde será exibido. O TELA+ é uma interface de descoberta, não um serviço que hospeda cópias.</p><div class="source-line"><a href="https://archive.org/developers/" target="_blank" rel="noopener">Documentação para desenvolvedores do Internet Archive ↗</a><br><a href="https://archivesupport.zendesk.com/hc/en-us/articles/360017808151-Movies-and-Videos-A-Basic-Guide" target="_blank" rel="noopener">Orientações do Internet Archive sobre direitos de vídeos ↗</a></div></div>'));
+      $('closeModal').addEventListener('click', closeModal);
+      $('modalBackdrop').addEventListener('click', e => { if(e.target === $('modalBackdrop')) closeModal(); });
+      document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+      window.addEventListener('scroll', () => $('topbar').classList.toggle('scrolled', window.scrollY>30), {passive:true});
+      loadCatalog('');
+    })();
+  </script>
+</body>
+</html>
